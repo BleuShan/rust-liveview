@@ -1,0 +1,119 @@
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = "true"
+RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_DIR = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/target"
+
+[tasks.pre-build]
+dependencies = [
+    "workspace-pre-build"
+]
+
+[tasks.workspace-pre-build]
+private = true
+
+[tasks.workspace-pre-build.env]
+RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAG = {value = "--target ${CARGO_MAKE_RELEASE_FLOW_TARGET}", condition = { env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"] }}
+RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAVOR = {source = "${CARGO_MAKE_TASK}", default_value ="debug", mapping = { dev-test-release-flow = "release"}}
+RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_DIR = {value = "${RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_DIR}/${CARGO_MAKE_RELEASE_FLOW_TARGET}/${RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAVOR}", condition = {env_set = ["CARGO_MAKE_RELEASE_FLOW_TARGET"]}}
+
+[tasks.build]
+args = [
+    "build",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAG, )",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_FLAGS, )"
+]
+
+[tasks.build-verbose]
+args = [
+    "build",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAG, )",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_FLAGS, )",
+    "--verbose"
+]
+
+[tasks.build-release]
+args = [
+    "build",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAG, )",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_FLAGS, )",
+    "--release"
+]
+
+[tasks.build-debug]
+args = [
+    "build",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAG, )",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_FLAGS, )",
+    "--debug"
+]
+
+[tasks.dev-test-release-flow]
+description = "Development testing flow will first format the code, and than run cargo build and test"
+category = "Development"
+dependencies = [
+    "format-flow",
+    "pre-build",
+    "build-release",
+    "post-build",
+    "test-release-flow"
+]
+
+[tasks.dev-test-debug-flow]
+description = "Development testing flow will first format the code, and than run cargo build and test"
+category = "Development"
+dependencies = [
+    "format-flow",
+    "pre-build",
+    "build-debug",
+    "post-build",
+    "test-flow"
+]
+
+[tasks.dev-test-client-flow.env]
+RUST_LIVEVIEW_CARGO_MAKE_WORKSPACE_SKIP_MEMBERS ="crates/core;crates/macros;crates/server"
+CARGO_MAKE_MEMBER_TASK = "dev-test-flow"
+
+[tasks.dev-test-client-flow]
+description = "Development testing flow will first format the code, and than run cargo build and test"
+run_task = "do-on-members"
+
+[tasks.dev-test-client-release-flow.env]
+RUST_LIVEVIEW_CARGO_MAKE_WORKSPACE_SKIP_MEMBERS ="crates/core;crates/macros;crates/server"
+CARGO_MAKE_MEMBER_TASK = "dev-test-release-flow"
+
+[tasks.dev-test-client-release-flow]
+description = "Development testing flow will first format the code, and than run cargo build and test"
+run_task = "do-on-members"
+
+[tasks.test]
+args = [
+    "test", 
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAG, )",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_FLAGS, )",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TEST_FLAGS, )"
+]
+
+[tasks.test-release]
+description = "Runs all available tests in release."
+category = "Test"
+command = "cargo"
+args = [
+    "test", 
+    "--release",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TARGET_FLAG, )",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_FLAGS, )",
+    "@@split(RUST_LIVEVIEW_CARGO_MAKE_CARGO_BUILD_TEST_FLAGS, )"
+]
+
+[tasks.test-release-flow]
+description = "Runs pre/post hooks and cargo test with release flag."
+category = "Test"
+dependencies = [
+    "pre-test",
+    "test-release",
+    "post-test"
+]
+
+[tasks.print-shell-env]
+category = "Tools"
+description = "Prints the shell environnment"
+command = "env"
