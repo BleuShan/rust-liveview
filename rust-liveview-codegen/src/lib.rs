@@ -5,6 +5,7 @@
     box_syntax,
     error_iter,
     never_type,
+    proc_macro_diagnostic,
     stdsimd,
     trait_alias,
     type_alias_impl_trait,
@@ -13,4 +14,4 @@
 )]
 #![recursion_limit = "512"]
 
-use rust_liveview_util::cfg_not_test;
+use proc_macro::TokenStream;
