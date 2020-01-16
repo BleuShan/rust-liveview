@@ -11,5 +11,6 @@
     try_blocks,
     try_trait
 )]
+#![recursion_limit = "512"]
 
-pub use rust_liveview_util as util;
+use rust_liveview_util::cfg_not_test;

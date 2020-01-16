@@ -19,6 +19,16 @@ macro_rules! cfg_native_arch {
 }
 
 #[macro_export]
+macro_rules! cfg_not_test {
+   ($($item:item)*) => {
+        $(
+            #[cfg(not(test))]
+            $item
+        )*
+    }
+}
+
+#[macro_export]
 macro_rules! cfg_test {
    ($($item:item)*) => {
         $(

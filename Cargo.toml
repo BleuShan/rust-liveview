@@ -5,6 +5,12 @@ license = "MIT"
 authors = ["Philippe Lafontaine <lafontaine.philippe@gmail.com>"]
 edition = "2018"
 
+[workspace]
+members = [
+    "rust-liveview-codegen",
+    "rust-liveview-util"
+]
+
 [dependencies]
 anyhow = "1.0.26"
 async-std = { version = "1.4.0", features = ["unstable", "attributes"] }
@@ -12,6 +18,10 @@ async-tungstenite = "0.3.1"
 derive_more = "0.99.2"
 futures = "0.3.1"
 thiserror = "1.0.9"
+serde = { version = "1.0.104", features = ['derive'] }
+rust-liveview-codegen = { path = "./rust-liveview-codegen" }
+rust-liveview-util = { path = "./rust-liveview-util" }
+proc-macro-hack = "0.5.11"
 
 [dev-dependencies]
 fluid = "0.4"

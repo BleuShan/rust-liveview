@@ -68,22 +68,6 @@ dependencies = [
     "test-flow"
 ]
 
-[tasks.dev-test-client-flow.env]
-RUST_LIVEVIEW_CARGO_MAKE_WORKSPACE_SKIP_MEMBERS ="crates/core;crates/macros;crates/server"
-CARGO_MAKE_MEMBER_TASK = "dev-test-flow"
-
-[tasks.dev-test-client-flow]
-description = "Development testing flow will first format the code, and than run cargo build and test"
-run_task = "do-on-members"
-
-[tasks.dev-test-client-release-flow.env]
-RUST_LIVEVIEW_CARGO_MAKE_WORKSPACE_SKIP_MEMBERS ="crates/core;crates/macros;crates/server"
-CARGO_MAKE_MEMBER_TASK = "dev-test-release-flow"
-
-[tasks.dev-test-client-release-flow]
-description = "Development testing flow will first format the code, and than run cargo build and test"
-run_task = "do-on-members"
-
 [tasks.test]
 args = [
     "test", 
