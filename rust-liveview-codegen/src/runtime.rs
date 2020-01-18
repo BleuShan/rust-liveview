@@ -58,7 +58,7 @@ impl Attribute {
         } else {
             quote!(#(#attrs)*)
         };
-        (quote! {
+        TokenStream::from(quote! {
             #attributes
             #vis #sig {
                 #entrypoint(async move {
@@ -66,6 +66,5 @@ impl Attribute {
                 })
             }
         })
-        .into()
     }
 }
