@@ -13,4 +13,5 @@
     try_trait
 )]
 
+pub use rust_liveview_codegen::runtime;
 pub use rust_liveview_util as util;

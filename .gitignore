@@ -56,8 +56,6 @@ typings/
 
 # Output
 dist
-wasm
-docs
 
 # dotenv environment variables file
 .env
@@ -75,3 +73,8 @@ Cargo.lock
 
 # mkcert certs
 certs
+
+# Build output
+wip
+wasm
+docs
