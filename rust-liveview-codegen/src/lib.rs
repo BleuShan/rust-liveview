@@ -5,7 +5,8 @@
     box_syntax,
     error_iter,
     never_type,
-    proc_macro_diagnostic,
+    pattern,
+    slice_patterns,
     stdsimd,
     trait_alias,
     type_alias_impl_trait,
@@ -14,8 +15,8 @@
 )]
 #![recursion_limit = "512"]
 
+mod helpers;
 mod runtime;
-mod util;
 
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
@@ -24,13 +25,12 @@ use syn::{
     AttributeArgs,
     ItemFn,
 };
-use util::set_fn_dummy;
 
 #[proc_macro_error]
 #[proc_macro_attribute]
 pub fn runtime(args: TokenStream, input: TokenStream) -> TokenStream {
     let attr_args = parse_macro_input!(args as AttributeArgs);
     let item = parse_macro_input!(input as ItemFn);
-    set_fn_dummy(&item);
+    helpers::set_fn_dummy(&item);
     runtime::Attribute::from(attr_args).generate(item)
 }

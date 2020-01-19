@@ -1,4 +1,4 @@
-use crate::util::has_attr;
+use crate::helpers::has_attr;
 use darling::FromMeta;
 use proc_macro::{
     Span,

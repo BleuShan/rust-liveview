@@ -8,7 +8,8 @@ edition = "2018"
 [workspace]
 members = [
     "rust-liveview-codegen",
-    "rust-liveview-util"
+    "rust-liveview-util",
+    "rust-liveview-view"
 ]
 
 [dependencies]
@@ -20,6 +21,7 @@ futures = "0.3.1"
 thiserror = "1.0.9"
 serde = { version = "1.0.104", features = ['derive'] }
 rust-liveview-codegen = { path = "./rust-liveview-codegen" }
+rust-liveview-view = { path = "./rust-liveview-view" }
 rust-liveview-util = { path = "./rust-liveview-util" }
 proc-macro-hack = "0.5.11"
 proc-macro-nested = "0.1.3"

@@ -1,4 +1,8 @@
+//! This crate the necessary infrastructure to render a view hiearchy into an
+//! html document.
+
 #![warn(missing_debug_implementations, nonstandard_style, rust_2018_idioms)]
+#![deny(missing_docs)]
 #![feature(
     associated_type_defaults,
     box_patterns,
@@ -14,6 +18,4 @@
     try_trait
 )]
 
-pub use rust_liveview_codegen::runtime;
-pub use rust_liveview_util as util;
-pub use rust_liveview_view as view;
+pub mod dom;

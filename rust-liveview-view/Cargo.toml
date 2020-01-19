@@ -1,0 +1,13 @@
+[package]
+name = "rust-liveview-view"
+version = "0.1.0"
+authors = ["Philippe Lafontaine <lafontaine.philippe@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+rust-liveview-util = { path = "../rust-liveview-util" }
+v_htmlescape = "0.4.5"
+serde = { version = "1.0.104", features = ['derive'] }
+
+[dev-dependencies]
+fluid = "0.4"
