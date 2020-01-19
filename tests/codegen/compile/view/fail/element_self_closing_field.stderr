@@ -1,0 +1,11 @@
+error: Unknown field: `self_closing`
+ --> $DIR/element_self_closing_field.rs:7:15
+  |
+7 |     #[element(self_closing)]
+  |               ^^^^^^^^^^^^
+
+error: An error occured while parsing the input.
+ --> $DIR/element_self_closing_field.rs:5:17
+  |
+5 | #[derive(Debug, Element)]
+  |                 ^^^^^^^

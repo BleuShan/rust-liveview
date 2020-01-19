@@ -1,9 +1,9 @@
-use crate::helpers::has_attr;
-use darling::FromMeta;
-use proc_macro::{
-    Span,
-    TokenStream,
+use crate::helpers::{
+    has_attr,
+    DarlingResultExt,
 };
+use darling::FromMeta;
+use proc_macro::TokenStream;
 use proc_macro_error::*;
 use quote::quote;
 use syn::{
@@ -22,13 +22,7 @@ pub struct Attribute {
 
 impl From<AttributeArgs> for Attribute {
     fn from(attr_args: AttributeArgs) -> Self {
-        match Self::from_list(&attr_args) {
-            Ok(attr) => attr,
-            Err(e) => {
-                e.emit();
-                abort!(Span::call_site(), "Invalid arguments");
-            }
-        }
+        Self::from_list(&attr_args).expect_or_abort("An error occured while parsing the input.")
     }
 }
 

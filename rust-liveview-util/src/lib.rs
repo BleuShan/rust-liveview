@@ -14,3 +14,7 @@
 )]
 
 mod macros;
+pub use inflector::{
+    Inflector,
+    InflectorNumbers,
+};

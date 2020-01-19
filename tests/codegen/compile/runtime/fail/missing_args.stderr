@@ -1,6 +1,6 @@
 error: Missing field `executor_entrypoint`
 
-error: Invalid arguments
+error: An error occured while parsing the input.
  --> $DIR/missing_args.rs:3:1
   |
 3 | #[runtime]

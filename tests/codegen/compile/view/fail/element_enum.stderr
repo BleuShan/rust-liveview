@@ -1,0 +1,7 @@
+error: Unsupported shape `enum`
+
+error: An error occured while parsing the input.
+ --> $DIR/element_enum.rs:5:17
+  |
+5 | #[derive(Debug, Element)]
+  |                 ^^^^^^^

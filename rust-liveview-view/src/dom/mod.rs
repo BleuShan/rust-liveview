@@ -1,11 +1,15 @@
 //! DOM representation.
 
-use rust_liveview_util::cfg_test;
+pub use rust_liveview_codegen::Element;
+
 use std::fmt::{
     self,
     Display,
 };
 use v_htmlescape::escape;
+
+#[cfg(test)]
+mod tests;
 
 /// A Node represents an rendered element in a DOM tree.
 pub trait Node: Display + Send {
@@ -13,7 +17,7 @@ pub trait Node: Display + Send {
     const NODE_NAME: &'static str;
 }
 
-/// Generic representation of a SVGElement or HTMLElement.
+/// A representation of a SVGElement or HTMLElement.
 pub trait Element: Node {
     /// The list of typed attribute name defined for
     /// the element.
@@ -60,23 +64,4 @@ impl Display for TextNode {
 
 impl Node for TextNode {
     const NODE_NAME: &'static str = "text";
-}
-
-cfg_test! {
-    mod test {
-        use super::*;
-        use fluid::prelude::*;
-
-        const HTML: &str = "<div>test</div>";
-
-        #[fact]
-        fn a_raw_text_node_should_leave_its_content_unescaped() {
-            TextNode::raw(HTML).to_string().should().be_equal_to(HTML);
-        }
-
-         #[fact]
-        fn a_safe_text_node_should_have_its_content_escaped() {
-            TextNode::safe(HTML).to_string().should().not().be_equal_to(HTML);
-        }
-    }
 }

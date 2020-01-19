@@ -1,5 +1,8 @@
-use proc_macro_error::set_dummy;
+use darling;
+use proc_macro::Span;
+use proc_macro_error::*;
 use quote::quote;
+pub use rust_liveview_util::*;
 use syn::{
     Attribute,
     ItemFn,
@@ -24,4 +27,38 @@ pub fn set_fn_dummy(item: &ItemFn) {
         #(#attrs)*
         #vis fn #ident(#inputs) {}
     });
+}
+
+pub trait DarlingResultExt {
+    type Ok;
+
+    fn unwrap_or_abort(self) -> Self::Ok;
+    fn expect_or_abort<S>(self, message: S) -> Self::Ok
+    where
+        S: AsRef<str>;
+}
+
+impl<T> DarlingResultExt for Result<T, darling::Error> {
+    type Ok = T;
+    fn unwrap_or_abort(self) -> T {
+        match self {
+            Ok(v) => v,
+            Err(e) => {
+                e.emit();
+                abort!(Span::call_site(), "An error occured.")
+            }
+        }
+    }
+    fn expect_or_abort<S>(self, message: S) -> T
+    where
+        S: AsRef<str>,
+    {
+        match self {
+            Ok(v) => v,
+            Err(e) => {
+                e.emit();
+                abort!(Span::call_site(), message.as_ref())
+            }
+        }
+    }
 }

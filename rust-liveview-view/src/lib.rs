@@ -1,4 +1,4 @@
-//! This crate the necessary infrastructure to render a view hiearchy into an
+//! This crate provides the necessary infrastructure to render a view hiearchy into an
 //! html document.
 
 #![warn(missing_debug_implementations, nonstandard_style, rust_2018_idioms)]
@@ -17,5 +17,11 @@
     try_blocks,
     try_trait
 )]
-
 pub mod dom;
+pub mod elements;
+
+pub use dom::{
+    Element,
+    Node,
+    TextNode,
+};

@@ -5,6 +5,7 @@ authors = ["Philippe Lafontaine <lafontaine.philippe@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+rust-liveview-codegen = { path = "../rust-liveview-codegen" }
 rust-liveview-util = { path = "../rust-liveview-util" }
 v_htmlescape = "0.4.5"
 serde = { version = "1.0.104", features = ['derive'] }

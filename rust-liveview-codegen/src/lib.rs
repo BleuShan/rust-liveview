@@ -17,12 +17,14 @@
 
 mod helpers;
 mod runtime;
+mod view;
 
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
 use syn::{
     parse_macro_input,
     AttributeArgs,
+    DeriveInput,
     ItemFn,
 };
 
@@ -33,4 +35,11 @@ pub fn runtime(args: TokenStream, input: TokenStream) -> TokenStream {
     let item = parse_macro_input!(input as ItemFn);
     helpers::set_fn_dummy(&item);
     runtime::Attribute::from(attr_args).generate(item)
+}
+
+#[proc_macro_error]
+#[proc_macro_derive(Element, attributes(element))]
+pub fn element(input: TokenStream) -> TokenStream {
+    let item = parse_macro_input!(input as DeriveInput);
+    view::Element::from(item).generate()
 }
