@@ -19,9 +19,12 @@
 )]
 pub mod dom;
 pub mod elements;
+pub mod render;
 
 pub use dom::{
     Element,
     Node,
     TextNode,
 };
+
+pub use render::Renderer;

@@ -1,9 +1,9 @@
+use super::*;
 use async_std::{
     prelude::*,
     sync::channel,
     task,
 };
-use fluid::prelude::*;
 use rust_liveview::runtime;
 use std::time::Duration;
 
