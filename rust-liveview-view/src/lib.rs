@@ -5,6 +5,7 @@
 #![deny(missing_docs)]
 #![feature(
     associated_type_defaults,
+    backtrace,
     box_patterns,
     box_syntax,
     error_iter,
@@ -19,6 +20,7 @@
 )]
 pub mod dom;
 pub mod elements;
+pub mod error;
 pub mod render;
 
 pub use dom::{

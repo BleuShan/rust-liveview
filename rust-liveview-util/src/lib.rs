@@ -1,6 +1,7 @@
 #![warn(missing_debug_implementations, nonstandard_style, rust_2018_idioms)]
 #![feature(
     associated_type_defaults,
+    backtrace,
     box_patterns,
     box_syntax,
     error_iter,
