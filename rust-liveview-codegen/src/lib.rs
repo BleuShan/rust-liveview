@@ -7,7 +7,6 @@
     error_iter,
     never_type,
     pattern,
-    slice_patterns,
     stdsimd,
     trait_alias,
     type_alias_impl_trait,

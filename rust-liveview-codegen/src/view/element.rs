@@ -72,12 +72,12 @@ impl ElementField {
         if self.is_option() {
             quote! {
                 if let Some(ref #ident) = self.#ident {
-                    r.attribute(#name, #ident.to_string());
+                    r.attribute(#name, #ident.to_string())?;
                 }
             }
         } else {
             quote! {
-                r.attribute(#name, self.#ident.to_string());
+                r.attribute(#name, self.#ident.to_string())?;
             }
         }
     }
@@ -125,15 +125,16 @@ impl Element {
 
         let self_closing = self.self_closing;
         quote! {
-            impl<T> Node<T> for #ident<T> where T: Send {
+            impl<C> Node<C> for #ident<C> where C: RenderContext {
                 fn node_name(&self) -> &'static str {
                     #node_name
                 }
 
-                fn render(&self, r: Box<&mut dyn Renderer<Output = T>>) {
-                    r.start_node(#node_name);
+                fn render(&self, r: &mut Renderer<'_, C>) -> Result<()> {
+                    r.node(#node_name, #self_closing)?;
                     #(#attributes_impls)*
-                    r.end_node(#self_closing);
+
+                    Ok(())
                 }
             }
         }
@@ -144,7 +145,7 @@ impl Element {
         let fields = self.fields();
         let field_names = fields.map(|field| field.attribute_name());
         quote! {
-            impl<T> Element for #ident<T> where T: Send {
+            impl<C> Element<C> for #ident<C> where C: RenderContext {
                 fn attribute_names(&self) -> &'static [&'static str] {
                     &[#(#field_names,)*]
                 }

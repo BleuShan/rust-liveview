@@ -1,29 +1,13 @@
-//! DOM representation.
+//! Text rendering facilities.
 
-use crate::Renderer;
-pub use rust_liveview_codegen::Element;
+use crate::{
+    node::Node,
+    render::Renderer,
+    render_context::RenderContext,
+    result::Result,
+};
 use std::marker::PhantomData;
 use v_htmlescape::escape;
-
-/// A Node represents an rendered element in a DOM tree.
-pub trait Node<T>: Send
-where
-    T: Send,
-{
-    /// The HTML/SVG Node name representing the Node
-    fn node_name(&self) -> &'static str;
-    /// Render into a Renderer.
-    fn render(&self, renderer: Box<&mut dyn Renderer<Output = T>>)
-    where
-        T: Send;
-}
-
-/// A representation of a SVGElement or HTMLElement.
-pub trait Element {
-    /// The list of typed attribute name defined for
-    /// the element.
-    fn attribute_names(&self) -> &'static [&'static str];
-}
 
 /// A node representing text content.
 #[derive(Clone, Debug)]
@@ -56,17 +40,18 @@ where
 
 impl<T> Node<T> for TextNode<T>
 where
-    T: Send,
+    T: RenderContext,
 {
     fn node_name(&self) -> &'static str {
         "text"
     }
 
-    fn render(&self, renderer: Box<&mut dyn Renderer<Output = T>>) {
+    fn render(&self, renderer: &mut Renderer<'_, T>) -> Result<()> {
         let text = match self {
             Self::Safe(s, _) => escape(s).to_string(),
             Self::Raw(s, _) => s.clone(),
         };
-        renderer.text(text);
+        renderer.text(text)?;
+        Ok(())
     }
 }

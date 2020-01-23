@@ -1,19 +1,25 @@
-//! Renderer errors.
+//! Error related type definitions.
 
 use std::{
     backtrace::Backtrace,
+    error::Error as StdError,
     fmt,
     io,
-    result::Result as StdResult,
 };
 use thiserror::Error;
 
-/// Type alias for a Renderer result
-pub type Result<T, E = Error> = StdResult<T, E>;
-
-/// Encapsulate any error that might happen during rendering
+/// Global error type for this library.
 #[derive(Error, Debug)]
 pub enum Error {
+    /// Generic error
+    #[error("{source}")]
+    Any {
+        #[from]
+        #[doc(hidden)]
+        source: Box<dyn StdError>,
+        #[doc(hidden)]
+        backtrace: Backtrace,
+    },
     /// Formatting Error
     #[error("{source}")]
     Fmt {

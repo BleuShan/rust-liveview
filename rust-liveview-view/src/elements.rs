@@ -1,10 +1,6 @@
 //! Html elements.
 
-use crate::{
-    Element,
-    Node,
-    Renderer,
-};
+use crate::prelude::*;
 use std::marker::PhantomData;
 
 /// Html Element

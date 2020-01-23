@@ -1,8 +1,7 @@
 use super::*;
-use std::marker::PhantomData;
-use view::{
-    render::StringRenderer,
-    Element,
+use std::{
+    marker::PhantomData,
+    str,
 };
 
 #[derive(Debug, Element)]
@@ -25,7 +24,7 @@ struct SomeCustomElement<T> {
 }
 #[derive(Default)]
 struct ElementTests {
-    renderer: StringRenderer,
+    context: ByteBufferRenderContext,
 }
 
 #[session]
@@ -35,25 +34,30 @@ impl ElementTests {
     #[case(Optional{property: None, _phantom: PhantomData}, "<optional></optional>")]
     fn element_to_string_should_be_able_to_skip_none(
         mut self,
-        element: Optional<String>,
+        element: Optional<ByteBufferRenderContext>,
         expected: &str,
     ) {
-        element.render(Box::new(&mut self.renderer));
-        self.renderer.finish().should().be_equal_to(expected);
+        let mut renderer = Renderer::from(&mut self.context);
+        element.render(&mut renderer).should().be_ok();
+        let buffer = self.context.buffer();
+        let result = str::from_utf8(&buffer);
+        result.should().yield_the_item(expected);
     }
 
     #[fact]
     fn element_to_string_should_not_render_skipped_fields(mut self) {
-        let value = Skipped {
+        let element = Skipped {
             is_test: true,
             body: "hello world!".to_owned(),
             _phantom: PhantomData,
         };
 
-        value.render(Box::new(&mut self.renderer));
-        self.renderer
-            .finish()
+        let mut renderer = Renderer::from(&mut self.context);
+        element.render(&mut renderer).should().be_ok();
+        let buffer = self.context.buffer();
+        let result = str::from_utf8(&buffer);
+        result
             .should()
-            .be_equal_to("<skipped is-test=\"true\"></skipped>".to_owned());
+            .yield_the_item("<skipped is-test=\"true\"></skipped>");
     }
 }

@@ -1,4 +1,4 @@
-use rust_liveview::view::Element;
+use rust_liveview::view::prelude::*;
 
 fn main() {}
 
