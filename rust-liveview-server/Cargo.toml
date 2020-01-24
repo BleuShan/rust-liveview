@@ -1,0 +1,8 @@
+[package]
+name = "rust-liveview-server"
+version = "0.1.0"
+authors = ["Philippe Lafontaine <lafontaine.philippe@gmail.com>"]
+edition = "2018"
+
+
+[dependencies]

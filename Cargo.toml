@@ -9,6 +9,7 @@ edition = "2018"
 members = [
     "rust-liveview-codegen",
     "rust-liveview-util",
+    "rust-liveview-server",
     "rust-liveview-view"
 ]
 
@@ -21,12 +22,13 @@ futures = "0.3.1"
 thiserror = "1.0.9"
 serde = { version = "1.0.104", features = ['derive'] }
 rust-liveview-codegen = { path = "./rust-liveview-codegen" }
-rust-liveview-view = { path = "./rust-liveview-view" }
 rust-liveview-util = { path = "./rust-liveview-util" }
+rust-liveview-server = { path = "./rust-liveview-server" }
+rust-liveview-view = { path = "./rust-liveview-view" }
 proc-macro-hack = "0.5.11"
 proc-macro-nested = "0.1.3"
 http = "0.2.0"
 
 [dev-dependencies]
 fluid = "0.4"
-trybuild = "1.0.19"
+trybuild = "1.0.20"
