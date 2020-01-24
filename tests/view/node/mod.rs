@@ -1,6 +1,6 @@
 use super::*;
-use io::ByteBufferRenderContext;
 use prelude::*;
+use render::io::BufWriterRenderContext;
 
 mod element;
 mod text;

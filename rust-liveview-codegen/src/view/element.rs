@@ -72,12 +72,12 @@ impl ElementField {
         if self.is_option() {
             quote! {
                 if let Some(ref #ident) = self.#ident {
-                    r.attribute(#name, #ident.to_string())?;
+                    attributes.push((#name, #ident.to_string()));
                 }
             }
         } else {
             quote! {
-                r.attribute(#name, self.#ident.to_string())?;
+                attributes.push((#name, self.#ident.to_string()));
             }
         }
     }
@@ -116,25 +116,22 @@ impl Element {
         }
     }
 
-    fn generate_node_impl(&self) -> TokenStream2 {
+    fn generate_render_impl(&self) -> TokenStream2 {
         let ident = &self.ident;
         let node_name = ident.to_string().to_kebab_case().to_lowercase();
-        let attributes_impls = self
-            .fields()
-            .map(|field| field.generate_attribute_render_impl());
 
-        let self_closing = self.self_closing;
+        let render_element_impl = if self.self_closing {
+            quote!(r.element_void(#node_name, self.attributes()))
+        } else {
+            quote! {
+                r.element_open(#node_name, self.attributes())?;
+                r.element_close()
+            }
+        };
         quote! {
-            impl<C> Node<C> for #ident<C> where C: RenderContext {
-                fn node_name(&self) -> &'static str {
-                    #node_name
-                }
-
+            impl<C> Render<C> for #ident<C> where C: RenderContext {
                 fn render(&self, r: &mut Renderer<'_, C>) -> Result<()> {
-                    r.node(#node_name, #self_closing)?;
-                    #(#attributes_impls)*
-
-                    Ok(())
+                    #render_element_impl
                 }
             }
         }
@@ -142,19 +139,22 @@ impl Element {
 
     fn generate_element_impl(&self) -> TokenStream2 {
         let ident = &self.ident;
-        let fields = self.fields();
-        let field_names = fields.map(|field| field.attribute_name());
+        let attributes_impls = self
+            .fields()
+            .map(|field| field.generate_attribute_render_impl());
         quote! {
             impl<C> Element<C> for #ident<C> where C: RenderContext {
-                fn attribute_names(&self) -> &'static [&'static str] {
-                    &[#(#field_names,)*]
+                fn attributes(&self) -> Vec<(&'static str, String)> {
+                    let mut attributes = Vec::default();
+                    #(#attributes_impls)*
+                    attributes
                 }
             }
         }
     }
 
     pub fn generate(self) -> TokenStream {
-        let impls = vec![self.generate_node_impl(), self.generate_element_impl()];
+        let impls = vec![self.generate_render_impl(), self.generate_element_impl()];
         TokenStream::from(quote! {
            #(
                 #[automatically_derived]

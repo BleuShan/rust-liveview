@@ -1,30 +1,40 @@
 use super::*;
 
 const HTML: &str = "<div>test</div>";
-use std::str;
+use std::string;
 
-#[derive(Default)]
 struct TextNodeTests {
-    context: ByteBufferRenderContext,
+    context: BufWriterRenderContext<Vec<u8>>,
+}
+
+impl Default for TextNodeTests {
+    fn default() -> Self {
+        let context = BufWriterRenderContext::new(Vec::default());
+        Self { context }
+    }
 }
 
 #[session]
 impl TextNodeTests {
-    #[fact]
-    fn a_raw_text_node_should_leave_its_content_unescaped(mut self) {
+    #[inline]
+    fn render(
+        mut self,
+        node: TextNode<BufWriterRenderContext<Vec<u8>>>,
+    ) -> Result<String, string::FromUtf8Error> {
         let mut renderer = Renderer::from(&mut self.context);
-        TextNode::raw(HTML).render(&mut renderer).should().be_ok();
-        let buffer = self.context.buffer();
-        let result = str::from_utf8(&buffer);
-        result.should().yield_the_item(HTML);
+        node.render(&mut renderer).should().be_ok();
+        let buffer = self.context.into_inner().unwrap();
+        String::from_utf8(buffer)
     }
 
-    #[fact]
-    fn a_safe_text_node_should_have_its_content_escaped(mut self) {
-        let mut renderer = Renderer::from(&mut self.context);
-        TextNode::safe(HTML).render(&mut renderer).should().be_ok();
-        let buffer = self.context.buffer();
-        let result = str::from_utf8(&buffer);
-        result.should().not().yield_the_item(HTML);
+    #[theory]
+    #[case(TextNode::raw(HTML), HTML.to_owned())]
+    #[case(TextNode::safe(HTML), escape(HTML).to_string())]
+    fn text_node_rendering_should_work_as_expected(
+        self,
+        node: TextNode<BufWriterRenderContext<Vec<u8>>>,
+        expected: String,
+    ) {
+        self.render(node).should().yield_the_item(expected);
     }
 }

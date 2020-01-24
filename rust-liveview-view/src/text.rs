@@ -1,13 +1,15 @@
 //! Text rendering facilities.
 
 use crate::{
-    node::Node,
-    render::Renderer,
-    render_context::RenderContext,
+    render::{
+        Render,
+        RenderContext,
+        Renderer,
+    },
     result::Result,
 };
 use std::marker::PhantomData;
-use v_htmlescape::escape;
+pub use v_htmlescape::escape;
 
 /// A node representing text content.
 #[derive(Clone, Debug)]
@@ -38,14 +40,10 @@ where
     }
 }
 
-impl<T> Node<T> for TextNode<T>
+impl<T> Render<T> for TextNode<T>
 where
     T: RenderContext,
 {
-    fn node_name(&self) -> &'static str {
-        "text"
-    }
-
     fn render(&self, renderer: &mut Renderer<'_, T>) -> Result<()> {
         let text = match self {
             Self::Safe(s, _) => escape(s).to_string(),
