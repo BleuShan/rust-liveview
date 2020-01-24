@@ -15,7 +15,12 @@
 )]
 
 mod macros;
+pub use derive_more::*;
+pub use http;
 pub use inflector::{
     Inflector,
     InflectorNumbers,
 };
+pub use language_tags;
+pub use mime;
+pub use thiserror;

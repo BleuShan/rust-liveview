@@ -5,4 +5,9 @@ authors = ["Philippe Lafontaine <lafontaine.philippe@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+derive_more = "0.99.2"
 Inflector = "0.11.4"
+thiserror = "1.0.9"
+language-tags = "0.2.2"
+http = "0.2.0"
+mime = "0.3.16"

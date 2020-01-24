@@ -2,6 +2,7 @@
 
 pub use crate::{
     element::Element,
+    html,
     render::{
         Render,
         RenderContext,

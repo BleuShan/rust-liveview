@@ -8,24 +8,16 @@ use super::{
     Render,
 };
 use crate::result::Result;
+use rust_liveview_util::From;
 
 /// A Renderer process a Render object into a sequence of update operations
 /// for its RenderContext to process.
-#[derive(Debug)]
+#[derive(Debug, From)]
 pub struct Renderer<'a, C>
 where
     C: RenderContext,
 {
     context: &'a mut C,
-}
-
-impl<'a, C> From<&'a mut C> for Renderer<'a, C>
-where
-    C: RenderContext,
-{
-    fn from(context: &'a mut C) -> Self {
-        Self { context }
-    }
 }
 
 impl<'a, C> Renderer<'a, C>

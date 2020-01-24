@@ -1,5 +1,6 @@
 //! Error related type definitions.
 
+use rust_liveview_util::thiserror;
 use std::{
     backtrace::Backtrace,
     error::Error as StdError,
@@ -11,7 +12,7 @@ use thiserror::Error;
 /// Global error type for this library.
 #[derive(Error, Debug)]
 pub enum Error {
-    /// Generic error
+    /// Generic error.
     #[error("{source}")]
     Any {
         #[from]
@@ -20,7 +21,10 @@ pub enum Error {
         #[doc(hidden)]
         backtrace: Backtrace,
     },
-    /// Formatting Error
+    /// Custom Error.
+    #[error("{0}")]
+    Custom(String),
+    /// Formatting Error.
     #[error("{source}")]
     Fmt {
         #[from]
@@ -29,7 +33,7 @@ pub enum Error {
         #[doc(hidden)]
         backtrace: Backtrace,
     },
-    /// IO error
+    /// IO error.
     #[error("{source}")]
     IO {
         #[from]
@@ -38,4 +42,16 @@ pub enum Error {
         #[doc(hidden)]
         backtrace: Backtrace,
     },
+}
+
+impl From<String> for Error {
+    fn from(s: String) -> Self {
+        Self::Custom(s)
+    }
+}
+
+impl From<&'static str> for Error {
+    fn from(s: &'static str) -> Self {
+        Self::from(s.to_owned())
+    }
 }

@@ -8,7 +8,6 @@ edition = "2018"
 rust-liveview-codegen = { path = "../rust-liveview-codegen" }
 rust-liveview-util = { path = "../rust-liveview-util" }
 v_htmlescape = "0.4.5"
-thiserror = "1.0.9"
 
 [dev-dependencies]
 fluid = "0.4"
