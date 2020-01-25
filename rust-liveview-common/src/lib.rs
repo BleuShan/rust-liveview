@@ -1,3 +1,5 @@
+//! Common types and utilities
+
 #![warn(missing_debug_implementations, nonstandard_style, rust_2018_idioms)]
 #![feature(
     associated_type_defaults,
@@ -16,6 +18,7 @@
 )]
 
 mod macros;
+pub use derive_builder::Builder;
 pub use derive_more::*;
 pub use http;
 pub use inflector::{
@@ -24,11 +27,7 @@ pub use inflector::{
 };
 pub use language_tags;
 pub use lazy_static::*;
-pub use mime;
-pub use mime_guess;
 pub use thiserror;
 
-pub mod strum {
-    pub use ::strum::*;
-    pub use ::strum_macros::*;
-}
+pub mod mime;
+pub mod strum;

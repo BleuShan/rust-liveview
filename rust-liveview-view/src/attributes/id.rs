@@ -4,7 +4,7 @@ use crate::{
     error::Error,
     result::Result,
 };
-pub use rust_liveview_util::{
+pub use rust_liveview_common::{
     AsRef,
     Deref,
     Display,

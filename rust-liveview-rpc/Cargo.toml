@@ -10,7 +10,8 @@ async-std = { version = "1.4.0", features = ["unstable"] }
 async-tungstenite = "0.3.1"
 futures = "0.3.1"
 serde = { version = "1.0.104", features = ['derive'] }
-rust-liveview-util = { path = "../rust-liveview-util" }
+rust-liveview-common = { path = "../rust-liveview-common" }
 async-tls = "0.6.0"
 rustls = "0.16.0"
 config = "0.10.1"
+http-service = "0.4.0"

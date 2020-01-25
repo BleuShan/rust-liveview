@@ -8,14 +8,14 @@ edition = "2018"
 [workspace]
 members = [
     "rust-liveview-codegen",
-    "rust-liveview-util",
+    "rust-liveview-common",
     "rust-liveview-rpc",
     "rust-liveview-view"
 ]
 
 [dependencies]
 rust-liveview-codegen = { path = "./rust-liveview-codegen" }
-rust-liveview-util = { path = "./rust-liveview-util" }
+rust-liveview-common = { path = "./rust-liveview-common" }
 rust-liveview-rpc = { path = "./rust-liveview-rpc" }
 rust-liveview-view = { path = "./rust-liveview-view" }
 
@@ -24,3 +24,4 @@ futures = "0.3.1"
 async-std = { version = "1.4.0", features = ["unstable"] }
 fluid = "0.4"
 trybuild = "1.0.20"
+http-service-mock = "0.4.0"

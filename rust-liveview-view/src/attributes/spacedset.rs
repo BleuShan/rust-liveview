@@ -1,6 +1,6 @@
 //! Adapted from https://github.com/bodil/typed-html/blob/master/typed-html/src/types/spacedset.rs
 
-pub use rust_liveview_util::{
+pub use rust_liveview_common::{
     Deref,
     DerefMut,
 };

@@ -1,4 +1,4 @@
-//! Prelude
+//! The view rendering prelude
 
 pub use crate::{
     attributes,

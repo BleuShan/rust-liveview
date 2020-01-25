@@ -1,6 +1,6 @@
 //! Error related type definitions.
 
-use rust_liveview_util::thiserror;
+use rust_liveview_common::thiserror;
 use std::{
     backtrace::Backtrace,
     error::Error as StdError,

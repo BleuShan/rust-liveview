@@ -8,7 +8,7 @@ use super::{
     Render,
 };
 use crate::result::Result;
-use rust_liveview_util::From;
+use rust_liveview_common::From;
 
 /// A Renderer process a Render object into a sequence of update operations
 /// for its RenderContext to process.

@@ -2,7 +2,7 @@ use darling;
 use proc_macro::Span;
 use proc_macro_error::*;
 use quote::quote;
-pub use rust_liveview_util::*;
+pub use rust_liveview_common::*;
 use syn::{
     Attribute,
     ItemFn,

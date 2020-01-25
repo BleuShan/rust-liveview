@@ -1,6 +1,6 @@
 //! HTML attributes values.
 
-pub use rust_liveview_util::{
+pub use rust_liveview_common::{
     http::Uri,
     language_tags::LanguageTag,
     mime::Mime,
