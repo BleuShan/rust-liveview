@@ -5,8 +5,8 @@ use crate::render::{
     RenderContext,
 };
 pub use rust_liveview_codegen::{
-    declare_element,
-    declare_elements,
+    define_element,
+    define_elements,
     Element,
 };
 

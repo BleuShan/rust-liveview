@@ -47,7 +47,11 @@ where
     ) -> Result<()> {
         write!(self.writer, "<{}", node_name)?;
         for (key, value) in attributes {
-            write!(self.writer, " {}=\"{}\"", key, value)?;
+            if value.is_empty() {
+                write!(self.writer, " {}", key)?;
+            } else {
+                write!(self.writer, " {}=\"{}\"", key, value)?;
+            }
         }
         Ok(())
     }

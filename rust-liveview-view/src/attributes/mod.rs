@@ -1,4 +1,4 @@
-//! Global attributes values.
+//! HTML attributes values.
 
 pub use rust_liveview_util::{
     http::Uri,

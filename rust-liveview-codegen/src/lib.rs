@@ -46,14 +46,14 @@ pub fn element(input: TokenStream) -> TokenStream {
 
 #[proc_macro_error]
 #[proc_macro]
-pub fn declare_element(input: TokenStream) -> TokenStream {
-    let declaration = parse_macro_input!(input as view::ElementDeclaration);
+pub fn define_element(input: TokenStream) -> TokenStream {
+    let declaration = parse_macro_input!(input as view::ElementDefinition);
     TokenStream::from(declaration)
 }
 
 #[proc_macro_error]
 #[proc_macro]
-pub fn declare_elements(input: TokenStream) -> TokenStream {
-    let declaration = parse_macro_input!(input as view::ElementDeclarations);
+pub fn define_elements(input: TokenStream) -> TokenStream {
+    let declaration = parse_macro_input!(input as view::ElementDefinitions);
     TokenStream::from(declaration)
 }

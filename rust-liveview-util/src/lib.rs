@@ -4,6 +4,7 @@
     backtrace,
     box_patterns,
     box_syntax,
+    const_if_match,
     error_iter,
     never_type,
     pattern,
@@ -22,5 +23,11 @@ pub use inflector::{
     InflectorNumbers,
 };
 pub use language_tags;
+pub use lazy_static::*;
 pub use mime;
 pub use thiserror;
+
+pub mod strum {
+    pub use ::strum::*;
+    pub use ::strum_macros::*;
+}

@@ -1,8 +1,8 @@
-mod declare;
+mod define;
 mod element;
 
-pub use declare::{
-    ElementDeclaration,
-    ElementDeclarations,
+pub use define::{
+    ElementDefinition,
+    ElementDefinitions,
 };
 pub use element::Element;

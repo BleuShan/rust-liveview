@@ -56,7 +56,9 @@ impl ElementField {
         if let Type::Path(ref typepath) = self.ty {
             if typepath.qself.is_none() {
                 let mut segments = typepath.path.segments.iter();
-                return segments.any(|segment| segment.ident == "PhantomData");
+                return segments.any(|segment| {
+                    segment.ident == "PhantomData" || segment.ident == "PhantomPinned"
+                });
             }
         }
         false

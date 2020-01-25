@@ -1,9 +1,10 @@
 //! Prelude
 
 pub use crate::{
+    attributes,
     element::{
-        declare_element,
-        declare_elements,
+        define_element,
+        define_elements,
         Element,
     },
     html,

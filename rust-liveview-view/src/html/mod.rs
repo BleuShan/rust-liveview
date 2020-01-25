@@ -1,7 +1,4 @@
 //! HTML representation.
 
-pub mod attributes;
-pub mod elements;
-
-pub use attributes::*;
+mod elements;
 pub use elements::*;

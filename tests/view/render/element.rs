@@ -4,30 +4,20 @@ use std::{
     string,
 };
 
-#[derive(Debug, Element)]
-struct Optional<T> {
-    property: Option<String>,
-    _phantom: PhantomData<T>,
-}
-
-#[derive(Debug, Element)]
-struct Skipped<T> {
-    is_test: bool,
-    #[element(skip)]
-    body: String,
-    _phantom: PhantomData<T>,
-}
-
-#[derive(Debug, Element)]
-struct SomeCustomElement<T> {
-    _phantom: PhantomData<T>,
-}
-
-#[derive(Debug, Element)]
-#[element(self_closing)]
-struct SelfClosing<T> {
-    property: Option<bool>,
-    _phantom: PhantomData<T>,
+define_elements! {
+    Optional {
+        property: String
+    },
+    Skipped {
+        is_test: bool,
+        #[element(skip)]
+        body: String,
+    },
+    SomeCustomElement,
+    #[element(self_closing)]
+    SelfClosing {
+        property: bool
+    }
 }
 
 struct ElementTests {
@@ -56,17 +46,15 @@ impl ElementTests {
 
     #[fact]
     fn element_rendering_should_render_tag_name_properly(self) {
-        let element = SomeCustomElement {
-            _phantom: PhantomData,
-        };
+        let element = SomeCustomElement { _c: PhantomData };
         self.render(element)
             .should()
             .yield_the_item("<some-custom-element></some-custom-element>".to_owned());
     }
 
     #[theory]
-    #[case(SelfClosing{property: Some(true), _phantom: PhantomData}, "<self-closing property=\"true\" />")]
-    #[case(SelfClosing{property: None, _phantom: PhantomData}, "<self-closing />")]
+    #[case(SelfClosing{property: Some(true), _c: PhantomData}, "<self-closing property=\"true\" />")]
+    #[case(SelfClosing{property: None, _c: PhantomData}, "<self-closing />")]
     fn element_rendering_should_render_self_closing_tags_properly(
         self,
         element: SelfClosing<BufWriterRenderContext<Vec<u8>>>,
@@ -78,8 +66,8 @@ impl ElementTests {
     }
 
     #[theory]
-    #[case(Optional{property: Some("test".to_owned()), _phantom: PhantomData}, "<optional property=\"test\"></optional>")]
-    #[case(Optional{property: None, _phantom: PhantomData}, "<optional></optional>")]
+    #[case(Optional{property: Some("test".to_owned()), _c: PhantomData}, "<optional property=\"test\"></optional>")]
+    #[case(Optional{property: None, _c: PhantomData}, "<optional></optional>")]
     fn element_rendering_should_be_able_to_skip_none(
         self,
         element: Optional<BufWriterRenderContext<Vec<u8>>>,
@@ -93,9 +81,9 @@ impl ElementTests {
     #[fact]
     fn element_rendering_should_not_render_skipped_fields(self) {
         let element = Skipped {
-            is_test: true,
-            body: "hello world!".to_owned(),
-            _phantom: PhantomData,
+            is_test: Some(true),
+            body: Some("hello world!".to_owned()),
+            _c: PhantomData,
         };
 
         self.render(element)

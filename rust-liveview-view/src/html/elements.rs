@@ -1,11 +1,8 @@
-//! HTML elements.
-
-use super::attributes::*;
 use crate::prelude::*;
 
-declare_elements! {
+define_elements! {
     Html {
-        xmlns: Uri,
+        xmlns: attributes::Uri,
     },
     Head {},
     Body {}
