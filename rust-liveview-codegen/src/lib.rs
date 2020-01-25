@@ -41,5 +41,19 @@ pub fn runtime(args: TokenStream, input: TokenStream) -> TokenStream {
 #[proc_macro_derive(Element, attributes(element))]
 pub fn element(input: TokenStream) -> TokenStream {
     let item = parse_macro_input!(input as DeriveInput);
-    view::Element::from(item).generate()
+    TokenStream::from(view::Element::from(item))
+}
+
+#[proc_macro_error]
+#[proc_macro]
+pub fn declare_element(input: TokenStream) -> TokenStream {
+    let declaration = parse_macro_input!(input as view::ElementDeclaration);
+    TokenStream::from(declaration)
+}
+
+#[proc_macro_error]
+#[proc_macro]
+pub fn declare_elements(input: TokenStream) -> TokenStream {
+    let declaration = parse_macro_input!(input as view::ElementDeclarations);
+    TokenStream::from(declaration)
 }

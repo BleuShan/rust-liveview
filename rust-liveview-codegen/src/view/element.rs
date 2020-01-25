@@ -92,7 +92,6 @@ impl ElementField {
 pub struct Element {
     ident: Ident,
     attrs: Vec<Attribute>,
-    vis: Visibility,
     data: Data<(), ElementField>,
     #[darling(default)]
     self_closing: bool,
@@ -101,6 +100,20 @@ pub struct Element {
 impl From<DeriveInput> for Element {
     fn from(input: DeriveInput) -> Self {
         Self::from_derive_input(&input).expect_or_abort("An error occured while parsing the input.")
+    }
+}
+
+impl From<Element> for TokenStream {
+    #[inline]
+    fn from(el: Element) -> TokenStream {
+        let impls = vec![el.generate_render_impl(), el.generate_element_impl()];
+        TokenStream::from(quote! {
+           #(
+                #[automatically_derived]
+                #[allow(unused_qualifications)]
+                #impls
+           )*
+        })
     }
 }
 
@@ -151,16 +164,5 @@ impl Element {
                 }
             }
         }
-    }
-
-    pub fn generate(self) -> TokenStream {
-        let impls = vec![self.generate_render_impl(), self.generate_element_impl()];
-        TokenStream::from(quote! {
-           #(
-                #[automatically_derived]
-                #[allow(unused_qualifications)]
-                #impls
-           )*
-        })
     }
 }

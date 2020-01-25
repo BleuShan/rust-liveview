@@ -18,8 +18,6 @@ rust-liveview-codegen = { path = "./rust-liveview-codegen" }
 rust-liveview-util = { path = "./rust-liveview-util" }
 rust-liveview-server = { path = "./rust-liveview-server" }
 rust-liveview-view = { path = "./rust-liveview-view" }
-proc-macro-hack = "0.5.11"
-proc-macro-nested = "0.1.3"
 
 [dev-dependencies]
 futures = "0.3.1"

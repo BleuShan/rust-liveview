@@ -1,7 +1,11 @@
 //! Prelude
 
 pub use crate::{
-    element::Element,
+    element::{
+        declare_element,
+        declare_elements,
+        Element,
+    },
     html,
     render::{
         Render,
