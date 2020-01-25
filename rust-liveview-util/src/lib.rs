@@ -25,6 +25,7 @@ pub use inflector::{
 pub use language_tags;
 pub use lazy_static::*;
 pub use mime;
+pub use mime_guess;
 pub use thiserror;
 
 pub mod strum {
