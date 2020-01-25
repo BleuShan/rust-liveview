@@ -17,5 +17,5 @@
 pub use fluid::prelude::*;
 
 mod codegen;
-mod server;
+mod rpc;
 mod view;

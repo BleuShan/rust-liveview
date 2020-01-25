@@ -15,6 +15,6 @@
 )]
 
 pub use rust_liveview_codegen::runtime;
-pub use rust_liveview_server as server;
+pub use rust_liveview_rpc as rpc;
 pub use rust_liveview_util as util;
 pub use rust_liveview_view as view;
