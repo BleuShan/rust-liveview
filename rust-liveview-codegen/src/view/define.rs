@@ -1,4 +1,5 @@
 use crate::helpers::{
+    once_cell::unsync::Lazy,
     Deref,
     IntoIterator,
 };
@@ -25,6 +26,28 @@ use syn::{
     Type,
 };
 
+#[allow(clippy::declare_interior_mutable_const)]
+const GLOBAL_ATTRS: Lazy<Punctuated<ExprType, Token![,]>> = Lazy::new(|| {
+    let def = syn::parse_str::<TokenStream2>(
+        "GlobalAttributes {
+                    accesskey: attributes::SpacedSet<String>,
+                    class: attributes::SpacedSet<attributes::Class>, 
+                    id: attributes::Id, 
+                    lang: attributes::LanguageTag,
+                    title: String
+                }",
+    )
+    .and_then(syn::parse2::<ElementDefinition>)
+    .expect_or_abort("Failed to parse global attributes definitions.");
+
+    match def {
+        ElementDefinition::Struct { fields, .. } => fields,
+        ElementDefinition::Unit { ident, .. } => {
+            abort!(ident.span(), "Invalid global attributes definitions.")
+        }
+    }
+});
+
 #[derive(Debug)]
 pub enum ElementDefinition {
     Unit {
@@ -38,30 +61,9 @@ pub enum ElementDefinition {
     },
 }
 
-thread_local! {
-    static GLOBAL_ATTRS: Punctuated<ExprType, Token![,]> = {
-        let def = syn::parse_str::<TokenStream2>(
-            "GlobalAttributes {
-                    accesskey: attributes::SpacedSet<String>,
-                    class: attributes::SpacedSet<attributes::Class>, 
-                    id: attributes::Id, 
-                    lang: attributes::LanguageTag,
-                    title: String
-                }",
-        )
-        .and_then(syn::parse2::<ElementDefinition>)
-        .expect_or_abort("Failed to parse global attributes definitions.");
-
-        match def {
-          ElementDefinition::Struct{fields, ..} => fields,
-          ElementDefinition::Unit {ident, ..} =>
-            abort!(ident.span(), "Invalid global attributes definitions.")
-        }
-    }
-}
-
 fn global_attributes<'a>() -> Box<dyn Iterator<Item = ExprType> + 'a> {
-    box GLOBAL_ATTRS.with(|attrs| attrs.clone().into_iter())
+    let fields = GLOBAL_ATTRS;
+    box (*fields).clone().into_iter()
 }
 
 #[derive(IntoIterator, Deref, Debug)]

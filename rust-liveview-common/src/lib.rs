@@ -33,7 +33,7 @@ pub use inflector::{
     InflectorNumbers,
 };
 pub use language_tags;
-pub use lazy_static::*;
+pub use once_cell;
 pub use regex;
 pub use thiserror;
 
