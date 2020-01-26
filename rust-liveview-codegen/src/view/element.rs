@@ -13,6 +13,11 @@ use proc_macro_error::*;
 use quote::quote;
 use std::str::pattern::Pattern;
 use syn::{
+    parse::{
+        Parse,
+        ParseStream,
+        Result,
+    },
     Attribute,
     DeriveInput,
     Ident,
@@ -99,9 +104,11 @@ pub struct Element {
     self_closing: bool,
 }
 
-impl From<DeriveInput> for Element {
-    fn from(input: DeriveInput) -> Self {
-        Self::from_derive_input(&input).expect_or_abort("An error occured while parsing the input.")
+impl Parse for Element {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let item: DeriveInput = input.parse()?;
+        Ok(Self::from_derive_input(&item)
+            .expect_or_abort("An error occured while parsing the input."))
     }
 }
 

@@ -1,5 +1,4 @@
-use darling;
-use proc_macro::Span;
+use proc_macro2::Span;
 use proc_macro_error::*;
 use quote::quote;
 pub(crate) use rust_liveview_common::*;
@@ -49,6 +48,7 @@ impl<T> DarlingResultExt for Result<T, darling::Error> {
             }
         }
     }
+
     fn expect_or_abort<S>(self, message: S) -> T
     where
         S: AsRef<str>,

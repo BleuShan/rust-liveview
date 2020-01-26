@@ -29,7 +29,6 @@ use proc_macro_error::proc_macro_error;
 use syn::{
     parse_macro_input,
     AttributeArgs,
-    DeriveInput,
     ItemFn,
 };
 
@@ -45,8 +44,8 @@ pub fn runtime(args: TokenStream, input: TokenStream) -> TokenStream {
 #[proc_macro_error]
 #[proc_macro_derive(Element, attributes(element))]
 pub fn element(input: TokenStream) -> TokenStream {
-    let item = parse_macro_input!(input as DeriveInput);
-    TokenStream::from(view::Element::from(item))
+    let item = parse_macro_input!(input as view::Element);
+    TokenStream::from(item)
 }
 
 #[proc_macro_error]

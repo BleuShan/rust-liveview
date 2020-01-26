@@ -26,6 +26,7 @@ mod macros;
 pub use bytes;
 pub use derive_builder::Builder;
 pub use derive_more::*;
+pub use derive_new::new;
 pub use http;
 pub use inflector::{
     Inflector,
