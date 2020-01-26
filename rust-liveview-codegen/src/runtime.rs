@@ -14,7 +14,7 @@ use syn::{
 };
 
 #[derive(Debug, FromMeta)]
-pub struct Attribute {
+pub(crate) struct Attribute {
     executor_entrypoint: Path,
     #[darling(default)]
     test: bool,
@@ -27,7 +27,7 @@ impl From<AttributeArgs> for Attribute {
 }
 
 impl Attribute {
-    pub fn generate(self, mut item: ItemFn) -> TokenStream {
+    pub(crate) fn generate(self, mut item: ItemFn) -> TokenStream {
         let sig = &mut item.sig;
 
         if sig.asyncness.is_none() {

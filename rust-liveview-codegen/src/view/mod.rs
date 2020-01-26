@@ -1,8 +1,8 @@
 mod define;
 mod element;
 
-pub use define::{
+pub(crate) use define::{
     ElementDefinition,
     ElementDefinitions,
 };
-pub use element::Element;
+pub(crate) use element::Element;

@@ -31,7 +31,6 @@ impl Default for ElementTests {
     }
 }
 
-#[session]
 impl ElementTests {
     #[inline]
     fn render<E>(mut self, element: E) -> Result<String, string::FromUtf8Error>
@@ -43,7 +42,10 @@ impl ElementTests {
         let buffer = self.context.into_inner().unwrap();
         String::from_utf8(buffer)
     }
+}
 
+#[session]
+impl ElementTests {
     #[fact]
     fn element_rendering_should_render_tag_name_properly(self) {
         let element = SomeCustomElement { _c: PhantomData };

@@ -20,8 +20,6 @@ rust-liveview-rpc = { path = "./rust-liveview-rpc" }
 rust-liveview-view = { path = "./rust-liveview-view" }
 
 [dev-dependencies]
-futures = "0.3.1"
 async-std = { version = "1.4.0", features = ["unstable"] }
 fluid = "0.4"
 trybuild = "1.0.20"
-http-service-mock = "0.4.0"

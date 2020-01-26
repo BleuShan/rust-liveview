@@ -1,8 +1,13 @@
 //! This crate provides the necessary infrastructure to render a view hiearchy into an
 //! HTML document.
 
-#![warn(missing_debug_implementations, nonstandard_style, rust_2018_idioms)]
 #![deny(missing_docs)]
+#![warn(
+    missing_debug_implementations,
+    nonstandard_style,
+    rust_2018_idioms,
+    unreachable_pub
+)]
 #![feature(
     associated_type_defaults,
     backtrace,

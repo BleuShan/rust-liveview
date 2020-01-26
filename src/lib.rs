@@ -1,4 +1,9 @@
-#![warn(missing_debug_implementations, nonstandard_style, rust_2018_idioms)]
+#![warn(
+    missing_debug_implementations,
+    nonstandard_style,
+    rust_2018_idioms,
+    unreachable_pub
+)]
 #![feature(
     associated_type_defaults,
     backtrace,

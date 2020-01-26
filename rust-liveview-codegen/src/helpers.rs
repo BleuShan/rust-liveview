@@ -2,14 +2,14 @@ use darling;
 use proc_macro::Span;
 use proc_macro_error::*;
 use quote::quote;
-pub use rust_liveview_common::*;
+pub(crate) use rust_liveview_common::*;
 use syn::{
     Attribute,
     ItemFn,
 };
 
 #[inline]
-pub fn has_attr<I>(attrs: &[Attribute], ident: I) -> bool
+pub(crate) fn has_attr<I>(attrs: &[Attribute], ident: I) -> bool
 where
     I: AsRef<str>,
 {
@@ -17,7 +17,7 @@ where
 }
 
 #[inline]
-pub fn set_fn_dummy(item: &ItemFn) {
+pub(crate) fn set_fn_dummy(item: &ItemFn) {
     let sig = &item.sig;
     let attrs = &item.attrs;
     let ident = &sig.ident;
@@ -29,7 +29,7 @@ pub fn set_fn_dummy(item: &ItemFn) {
     });
 }
 
-pub trait DarlingResultExt {
+pub(crate) trait DarlingResultExt {
     type Ok;
 
     fn unwrap_or_abort(self) -> Self::Ok;

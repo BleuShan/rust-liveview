@@ -1,6 +1,11 @@
 //! Common types and utilities
 
-#![warn(missing_debug_implementations, nonstandard_style, rust_2018_idioms)]
+#![warn(
+    missing_debug_implementations,
+    nonstandard_style,
+    rust_2018_idioms,
+    unreachable_pub
+)]
 #![feature(
     associated_type_defaults,
     backtrace,
@@ -18,6 +23,7 @@
 )]
 
 mod macros;
+pub use bytes;
 pub use derive_builder::Builder;
 pub use derive_more::*;
 pub use http;
