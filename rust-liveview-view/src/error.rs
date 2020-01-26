@@ -1,13 +1,15 @@
 //! Error related type definitions.
 
-use rust_liveview_common::thiserror;
+use rust_liveview_common::thiserror::{
+    self,
+    Error,
+};
 use std::{
     backtrace::Backtrace,
     error::Error as StdError,
     fmt,
     io,
 };
-use thiserror::Error;
 
 /// Global error type for this library.
 #[derive(Error, Debug)]
