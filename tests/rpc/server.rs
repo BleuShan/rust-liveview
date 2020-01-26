@@ -1,5 +1,6 @@
 use super::*;
 
+#[derive(Deref, DerefMut, Debug)]
 struct ServerTests(TestBackend);
 
 impl Default for ServerTests {
@@ -11,8 +12,12 @@ impl Default for ServerTests {
 #[session]
 impl ServerTests {
     #[fact]
-    #[runtime(executor_entrypoint = "task::block_on")]
-    async fn server_should_respond_to_request(self) {
-        se
+    fn server_should_respond_to_request(mut self) {
+        task::block_on(self.call(Request::default()))
+            .map(|response| response.body().clone())
+            .should()
+            .be_ok()
+            .and_should()
+            .yield_the_item(Bytes::from("Test"));
     }
 }

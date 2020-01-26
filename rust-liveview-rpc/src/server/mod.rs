@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use async_std::{
     future::Future,
-    pin::Pin,
     task::{
         Context,
         Poll,
@@ -31,13 +30,5 @@ impl Service<Request<()>> for Server {
     fn call(&mut self, _req: Request<()>) -> Self::Future {
         let message = self.message.clone();
         Box::pin(async { Response::builder().body(Bytes::from(message)) })
-    }
-}
-
-impl Future for Server {
-    type Output = Result<(), <Self as Service<Request<()>>>::Error>;
-
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        self.poll_ready(cx)
     }
 }
