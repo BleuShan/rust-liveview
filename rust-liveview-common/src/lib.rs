@@ -33,7 +33,9 @@ pub use inflector::{
 };
 pub use language_tags;
 pub use lazy_static::*;
+pub use regex;
 pub use thiserror;
 
 pub mod mime;
+pub mod pin;
 pub mod strum;

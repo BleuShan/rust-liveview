@@ -1,2 +1,2 @@
-pub use ::strum::*;
-pub use ::strum_macros::*;
+pub use strum::*;
+pub use strum_macros::*;
