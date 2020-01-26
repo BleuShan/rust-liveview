@@ -93,12 +93,11 @@ impl ElementDefinition {
     fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = ElementDefinitionField> + 'a> {
         let iter = global_attributes().chain(self.own_fields());
         box iter.map(|field| {
-            let attrs = field.attrs;
-            let name = match *field.expr {
-                Expr::Path(ExprPath { path, qself, .. })
+            let (attrs, name) = match *field.expr {
+                Expr::Path(ExprPath { path, qself, attrs })
                     if qself.is_none() && path.segments.len() == 1 =>
                 {
-                    path.segments[0].ident.clone()
+                    (attrs, path.segments[0].ident.clone())
                 }
                 e => abort!(e.span(), "Invalid field name."),
             };

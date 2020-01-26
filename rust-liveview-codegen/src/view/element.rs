@@ -73,7 +73,7 @@ impl ElementField {
         self.skipped || "_".to_owned().is_prefix_of(&self.ident().to_string()) || self.is_phantom()
     }
 
-    fn generate_attribute_render_impl(&self) -> TokenStream2 {
+    fn generate_attribute_push_impl(&self) -> TokenStream2 {
         let name = self.attribute_name();
         let ident = self.ident();
         if self.is_option() {
@@ -163,7 +163,7 @@ impl Element {
         let ident = &self.ident;
         let attributes_impls = self
             .fields()
-            .map(|field| field.generate_attribute_render_impl());
+            .map(|field| field.generate_attribute_push_impl());
         quote! {
             impl<C> Element<C> for #ident<C> where C: RenderContext {
                 fn attributes(&self) -> Vec<(&'static str, String)> {

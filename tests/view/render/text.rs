@@ -1,32 +1,9 @@
 use super::*;
 
 const HTML: &str = "<div>test</div>";
-use std::string;
-
-struct TextNodeTests {
-    context: BufWriterRenderContext<Vec<u8>>,
-}
-
-impl Default for TextNodeTests {
-    fn default() -> Self {
-        let context = BufWriterRenderContext::new(Vec::default());
-        Self { context }
-    }
-}
 
 #[session]
-impl TextNodeTests {
-    #[inline]
-    fn render(
-        mut self,
-        node: TextNode<BufWriterRenderContext<Vec<u8>>>,
-    ) -> Result<String, string::FromUtf8Error> {
-        let mut renderer = Renderer::from(&mut self.context);
-        node.render(&mut renderer).should().be_ok();
-        let buffer = self.context.into_inner().unwrap();
-        String::from_utf8(buffer)
-    }
-
+impl RenderTests {
     #[theory]
     #[case(TextNode::raw(HTML), HTML.to_owned())]
     #[case(TextNode::safe(HTML), escape(HTML).to_string())]
