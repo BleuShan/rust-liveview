@@ -10,7 +10,10 @@ use darling::{
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use proc_macro_error::*;
-use quote::quote;
+use quote::{
+    quote,
+    ToTokens,
+};
 use std::str::pattern::Pattern;
 use syn::{
     parse::{
@@ -72,11 +75,13 @@ impl ElementField {
     fn is_skipped(&self) -> bool {
         self.skipped || "_".to_owned().is_prefix_of(&self.ident().to_string()) || self.is_phantom()
     }
+}
 
-    fn generate_attribute_push_impl(&self) -> TokenStream2 {
+impl ToTokens for ElementField {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
         let name = self.attribute_name();
         let ident = self.ident();
-        if self.is_option() {
+        let new_tokens = if self.is_option() {
             quote! {
                 if let Some(ref #ident) = self.#ident {
                     attributes.push((#name, #ident.to_string()));
@@ -86,7 +91,8 @@ impl ElementField {
             quote! {
                 attributes.push((#name, self.#ident.to_string()));
             }
-        }
+        };
+        tokens.extend(new_tokens)
     }
 }
 
@@ -104,28 +110,6 @@ pub struct Element {
     self_closing: bool,
 }
 
-impl Parse for Element {
-    fn parse(input: ParseStream<'_>) -> Result<Self> {
-        let item: DeriveInput = input.parse()?;
-        Ok(Self::from_derive_input(&item)
-            .expect_or_abort("An error occured while parsing the input."))
-    }
-}
-
-impl From<Element> for TokenStream {
-    #[inline]
-    fn from(el: Element) -> TokenStream {
-        let impls = vec![el.generate_render_impl(), el.generate_element_impl()];
-        TokenStream::from(quote! {
-           #(
-                #[automatically_derived]
-                #[allow(unused_qualifications)]
-                #impls
-           )*
-        })
-    }
-}
-
 impl Element {
     fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &ElementField> + 'a> {
         if let Some(fields) = self.data.as_ref().take_struct() {
@@ -137,12 +121,15 @@ impl Element {
             box std::iter::empty::<&ElementField>()
         }
     }
+}
 
-    fn generate_render_impl(&self) -> TokenStream2 {
+impl ToTokens for Element {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
         let ident = &self.ident;
         let node_name = ident.to_string().to_kebab_case().to_lowercase();
+        let fields = self.fields();
 
-        let render_element_impl = if self.self_closing {
+        let render_impl = if self.self_closing {
             quote!(r.element_void(#node_name, self.attributes()))
         } else {
             quote! {
@@ -150,28 +137,41 @@ impl Element {
                 r.element_close()
             }
         };
-        quote! {
+
+        tokens.extend(quote! {
+            #[automatically_derived]
+            #[allow(unused_qualifications)]
             impl<C> Render<C> for #ident<C> where C: RenderContext {
                 fn render(&self, r: &mut Renderer<'_, C>) -> Result<()> {
-                    #render_element_impl
+                    #render_impl
                 }
             }
-        }
-    }
 
-    fn generate_element_impl(&self) -> TokenStream2 {
-        let ident = &self.ident;
-        let attributes_impls = self
-            .fields()
-            .map(|field| field.generate_attribute_push_impl());
-        quote! {
+            #[automatically_derived]
+            #[allow(unused_qualifications)]
             impl<C> Element<C> for #ident<C> where C: RenderContext {
                 fn attributes(&self) -> Vec<(&'static str, String)> {
                     let mut attributes = Vec::default();
-                    #(#attributes_impls)*
+                    #(#fields)*
                     attributes
                 }
             }
-        }
+        })
+    }
+}
+
+impl Parse for Element {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let item: DeriveInput = input.parse()?;
+        Ok(Self::from_derive_input(&item)
+            .expect_or_abort("An error occured while parsing the input."))
+    }
+}
+
+impl From<Element> for TokenStream {
+    fn from(element: Element) -> TokenStream {
+        TokenStream::from(quote! {
+            #element
+        })
     }
 }

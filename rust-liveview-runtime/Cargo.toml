@@ -6,5 +6,5 @@ edition = "2018"
 
 
 [dependencies]
-rust-liveview-codegen = { path = "../rust-liveview-codegen" }
+rust-liveview-codegen = { path = "../rust-liveview-codegen", features = ["runtime"] }
 rust-liveview-common = { path = "../rust-liveview-common" }

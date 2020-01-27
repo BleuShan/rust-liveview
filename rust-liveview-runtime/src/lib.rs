@@ -18,3 +18,11 @@
     try_blocks,
     try_trait
 )]
+
+use rust_liveview_common::cfg_not_test;
+
+cfg_not_test! {
+    pub use rust_liveview_codegen::runtime_entrypoint_main as main;
+}
+
+pub use rust_liveview_codegen::runtime_entrypoint_test as test;

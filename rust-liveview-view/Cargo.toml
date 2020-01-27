@@ -5,7 +5,7 @@ authors = ["Philippe Lafontaine <lafontaine.philippe@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rust-liveview-codegen = { path = "../rust-liveview-codegen" }
+rust-liveview-codegen = { path = "../rust-liveview-codegen", features = ["view"] }
 rust-liveview-common = { path = "../rust-liveview-common" }
 v_htmlescape = "0.4.5"
 proc-macro-hack = "0.5.11"

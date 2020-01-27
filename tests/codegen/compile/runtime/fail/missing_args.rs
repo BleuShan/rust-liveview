@@ -1,4 +1,4 @@
 use rust_liveview::runtime;
 
-#[runtime]
+#[runtime::main]
 async fn main() {}

@@ -1,6 +1,3 @@
-use super::*;
-mod runtime;
-
 #[test]
 fn compile_tests() {
     let test_cases = trybuild::TestCases::new();

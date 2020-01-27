@@ -6,7 +6,10 @@ use crate::helpers::{
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use proc_macro_error::*;
-use quote::quote;
+use quote::{
+    quote,
+    ToTokens,
+};
 use std::iter;
 use syn::{
     braced,
@@ -48,6 +51,24 @@ const GLOBAL_ATTRS: Lazy<Punctuated<ExprType, Token![,]>> = Lazy::new(|| {
     }
 });
 
+fn global_attributes<'a>() -> Box<dyn Iterator<Item = ExprType> + 'a> {
+    let fields = GLOBAL_ATTRS;
+    box (*fields).clone().into_iter()
+}
+
+#[derive(Debug)]
+struct ElementDefinitionField(Vec<Attribute>, Ident, Box<Type>);
+
+impl ToTokens for ElementDefinitionField {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        let ElementDefinitionField(ref attrs, ref name, ref ty) = *self;
+        tokens.extend(quote! {
+            #(#attrs)*
+            #name: Option<#ty>,
+        })
+    }
+}
+
 #[derive(Debug)]
 pub enum ElementDefinition {
     Unit {
@@ -60,15 +81,6 @@ pub enum ElementDefinition {
         fields: Punctuated<ExprType, Token![,]>,
     },
 }
-
-fn global_attributes<'a>() -> Box<dyn Iterator<Item = ExprType> + 'a> {
-    let fields = GLOBAL_ATTRS;
-    box (*fields).clone().into_iter()
-}
-
-#[derive(IntoIterator, Deref, Debug)]
-pub struct ElementDefinitions(Punctuated<ElementDefinition, Token![,]>);
-type ElementDefinitionField = (Vec<Attribute>, Ident, Box<Type>);
 
 impl ElementDefinition {
     fn attrs(&self) -> &Vec<Attribute> {
@@ -105,25 +117,18 @@ impl ElementDefinition {
             };
             let ty = field.ty;
 
-            (attrs, name, ty)
+            ElementDefinitionField(attrs, name, ty)
         })
     }
-    fn generate_struct_fields<'a>(&'a self) -> Box<dyn Iterator<Item = TokenStream2> + 'a> {
-        box self.fields().map(|item| {
-            let (attrs, name, ty) = item;
-            quote! {
-                #(#attrs)*
-                #name: Option<#ty>,
-            }
-        })
-    }
+}
 
-    fn generate_struct(&self) -> TokenStream2 {
+impl ToTokens for ElementDefinition {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
         let attrs = self.attrs();
         let ident = self.ident();
-        let fields = self.generate_struct_fields();
+        let fields = self.fields();
         let doc = format!(" {} element.", ident);
-        quote! {
+        tokens.extend(quote! {
             #[doc = #doc]
             #[derive(Element, Clone, Default, Debug)]
             #(#attrs)*
@@ -131,41 +136,7 @@ impl ElementDefinition {
                 #(#fields)*
                 _c: std::marker::PhantomData<C>
             }
-        }
-    }
-}
-
-impl From<ElementDefinition> for TokenStream2 {
-    #[inline]
-    fn from(definition: ElementDefinition) -> Self {
-        let type_definition = definition.generate_struct();
-        quote! {
-            #type_definition
-        }
-    }
-}
-
-impl From<ElementDefinition> for TokenStream {
-    #[inline]
-    fn from(definition: ElementDefinition) -> Self {
-        Self::from(TokenStream2::from(definition))
-    }
-}
-impl From<ElementDefinitions> for TokenStream2 {
-    #[inline]
-    fn from(items: ElementDefinitions) -> Self {
-        #[allow(clippy::redundant_closure)]
-        let streams = items.into_iter().map(|item| TokenStream2::from(item));
-        quote! {
-           #(#streams)*
-        }
-    }
-}
-
-impl From<ElementDefinitions> for TokenStream {
-    #[inline]
-    fn from(definition: ElementDefinitions) -> Self {
-        Self::from(TokenStream2::from(definition))
+        })
     }
 }
 
@@ -188,9 +159,37 @@ impl Parse for ElementDefinition {
     }
 }
 
+impl From<ElementDefinition> for TokenStream {
+    fn from(definition: ElementDefinition) -> Self {
+        Self::from(quote! {
+            #definition
+        })
+    }
+}
+
+#[derive(IntoIterator, Deref, Debug)]
+pub struct ElementDefinitions(Punctuated<ElementDefinition, Token![,]>);
+
 impl Parse for ElementDefinitions {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let definitions = input.parse_terminated(ElementDefinition::parse)?;
         Ok(Self(definitions))
+    }
+}
+
+impl ToTokens for ElementDefinitions {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        let definitions = self.iter();
+        tokens.extend(quote! {
+            #(#definitions)*
+        })
+    }
+}
+
+impl From<ElementDefinitions> for TokenStream {
+    fn from(definitions: ElementDefinitions) -> Self {
+        Self::from(quote! {
+            #definitions
+        })
     }
 }

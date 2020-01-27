@@ -1,7 +1,4 @@
-use crate::helpers::{
-    has_attr,
-    DarlingResultExt,
-};
+use crate::helpers::DarlingResultExt;
 use darling::FromMeta;
 use proc_macro::TokenStream;
 use proc_macro_error::*;
@@ -12,6 +9,27 @@ use syn::{
     ItemFn,
     Path,
 };
+
+#[inline]
+pub(crate) fn has_attr<I>(attrs: &[syn::Attribute], ident: I) -> bool
+where
+    I: AsRef<str>,
+{
+    attrs.iter().any(|attr| attr.path.is_ident(&ident))
+}
+
+#[inline]
+pub(crate) fn set_fn_dummy(item: &ItemFn) {
+    let sig = &item.sig;
+    let attrs = &item.attrs;
+    let ident = &sig.ident;
+    let inputs = &sig.inputs;
+    let vis = &item.vis;
+    set_dummy(quote! {
+        #(#attrs)*
+        #vis fn #ident(#inputs) {}
+    });
+}
 
 #[derive(Debug, FromMeta)]
 pub(crate) struct Attribute {

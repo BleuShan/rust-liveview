@@ -19,7 +19,7 @@
     try_trait
 )]
 
-pub use rust_liveview_codegen::runtime;
 pub use rust_liveview_common as common;
 pub use rust_liveview_rpc as rpc;
+pub use rust_liveview_runtime as runtime;
 pub use rust_liveview_view as view;
