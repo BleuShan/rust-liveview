@@ -7,7 +7,7 @@ use async_std::{
 use rust_liveview::runtime;
 use std::time::Duration;
 
-#[runtime::main(executor_entrypoint = "task::block_on")]
+#[runtime::main(executor = "async_std")]
 async fn main() -> io::Result<()> {
     let (tx, mut rx) = channel(1);
     let mut buffer: Vec<u8> = Default::default();

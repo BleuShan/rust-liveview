@@ -1,4 +1,4 @@
-error: Missing field `executor_entrypoint`
+error: Missing field `executor`
 
 error: An error occured while parsing the input.
  --> $DIR/missing_args.rs:3:1

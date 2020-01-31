@@ -31,26 +31,31 @@ cfg_common! {
 
 cfg_runtime! {
     mod runtime;
+    use runtime::entrypoint::{
+        MainEntryPointArgs,
+        MainEntryPoint,
+        TestEntryPoint,
+        TestEntryPointArgs
+    };
     use syn::{
-        AttributeArgs,
         ItemFn,
     };
     #[proc_macro_error]
     #[proc_macro_attribute]
     pub fn runtime_entrypoint_main(args: TokenStream, input: TokenStream) -> TokenStream {
-        let attr_args = parse_macro_input!(args as AttributeArgs);
         let item = parse_macro_input!(input as ItemFn);
         runtime::entrypoint::set_fn_dummy(&item);
-        runtime::entrypoint::Attribute::from(attr_args).generate(item)
+        let attr_args = parse_macro_input!(args as MainEntryPointArgs);
+        TokenStream::from(MainEntryPoint::new(attr_args, item))
     }
 
     #[proc_macro_error]
     #[proc_macro_attribute]
     pub fn runtime_entrypoint_test(args: TokenStream, input: TokenStream) -> TokenStream {
-        let attr_args = parse_macro_input!(args as AttributeArgs);
         let item = parse_macro_input!(input as ItemFn);
         runtime::entrypoint::set_fn_dummy(&item);
-        runtime::entrypoint::Attribute::from(attr_args).generate(item)
+        let attr_args = parse_macro_input!(args as TestEntryPointArgs);
+        TokenStream::from(TestEntryPoint::new(attr_args, item))
     }
 }
 

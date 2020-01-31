@@ -23,4 +23,4 @@ rust-liveview-view = { path = "./rust-liveview-view" }
 [dev-dependencies]
 async-std = { version = "1.4.0", features = ["unstable"] }
 fluid = "0.4"
-trybuild = "1.0.20"
+trybuild = "1.0.21"

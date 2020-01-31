@@ -2,5 +2,5 @@
 use async_std::task;
 use rust_liveview::runtime;
 
-#[runtime::main(executor_entrypoint = "task::block_on")]
+#[runtime::main(executor = "async_std")]
 fn main() {}

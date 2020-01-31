@@ -4,5 +4,5 @@ use rust_liveview::runtime;
 
 fn main() {}
 
-#[runtime::test(executor_entrypoint = "task::block_on", test)]
+#[runtime::test(executor = "async_std")]
 fn runtime_attribute_test_should_add_the_test_attribute() {}
