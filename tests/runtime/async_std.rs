@@ -22,7 +22,7 @@ async fn runtime_test_should_add_the_test_attribute() {
     }
 }
 
-#[runtime::test(executor = "async_std", runner = "fact")]
+#[runtime::test(executor = "async_std", kind = "fact")]
 async fn runtime_test_should_work_with_fluid_fact_attribute() {
     let (tx, mut rx) = channel(1);
     task::spawn(async move {
@@ -36,7 +36,7 @@ async fn runtime_test_should_work_with_fluid_fact_attribute() {
     }
 }
 
-#[runtime::test(executor = "async_std", runner = "theory")]
+#[runtime::test(executor = "async_std", kind = "theory")]
 #[case(1, 1)]
 #[case(2, 2)]
 async fn runtime_test_should_work_with_fluid_theory_attribute(a: u64, b: u64) {

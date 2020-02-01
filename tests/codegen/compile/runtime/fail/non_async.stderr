@@ -3,3 +3,7 @@ error: Only async functions are supported
   |
 6 | fn main() {}
   | ^^
+  |
+  = help: Consider writing the signature as:
+          
+          async fn main ()

@@ -36,7 +36,10 @@ impl ToTokens for MainEntryPoint {
         let mut sig = item.sig.clone();
 
         if sig.asyncness.is_none() {
-            abort!(sig.fn_token.span(), "Only async functions are supported");
+            abort!(
+                sig.fn_token.span(), "Only async functions are supported";
+                help = "Consider writing the signature as:\n\nasync {}", sig.to_token_stream();
+            );
         }
 
         let vis = &item.vis;

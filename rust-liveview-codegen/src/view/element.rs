@@ -47,7 +47,7 @@ impl ElementField {
     }
 
     fn attribute_name(&self) -> String {
-        self.ident().to_string().to_kebab_case().to_lowercase()
+        self.ident().to_string().to_kebab_case()
     }
 
     fn is_option(&self) -> bool {
@@ -126,7 +126,7 @@ impl Element {
 impl ToTokens for Element {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let ident = &self.ident;
-        let node_name = ident.to_string().to_kebab_case().to_lowercase();
+        let node_name = ident.to_string().to_kebab_case();
         let fields = self.fields();
 
         let render_impl = if self.self_closing {

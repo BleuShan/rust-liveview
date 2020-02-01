@@ -3,3 +3,7 @@ error: Only async functions are supported
   |
 8 | fn runtime_attribute_test_should_add_the_test_attribute() {}
   | ^^
+  |
+  = help: Consider writing the signature as:
+          
+          async fn runtime_attribute_test_should_add_the_test_attribute ()

@@ -1,0 +1,7 @@
+error: Second test attribute is supplied.
+ --> $DIR/invalid_test_attr.rs:8:1
+  |
+8 | #[test]
+  | ^^^^^^^
+  |
+  = note: test attribute is supplied by default

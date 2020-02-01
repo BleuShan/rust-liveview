@@ -1,9 +1,13 @@
 use crate::helpers::{
     new,
     DarlingResultExt,
+    Display,
 };
 use darling::FromMeta;
-use proc_macro::TokenStream;
+use proc_macro::{
+    Span,
+    TokenStream,
+};
 use proc_macro2::TokenStream as TokenStream2;
 use proc_macro_error::*;
 use quote::{
@@ -22,6 +26,7 @@ use syn::{
     },
     spanned::Spanned,
     AttributeArgs,
+    FnArg,
     ItemFn,
     NestedMeta,
     Token,
@@ -52,7 +57,7 @@ pub(crate) fn set_fn_dummy(item: &ItemFn) {
     });
 }
 
-#[derive(Debug, Clone, Copy, FromMeta)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, FromMeta, Debug, Display)]
 pub(crate) enum Executor {
     AsyncStd,
     Tokio,

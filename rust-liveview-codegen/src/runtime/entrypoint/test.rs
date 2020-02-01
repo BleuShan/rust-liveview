@@ -1,13 +1,13 @@
 use super::*;
 
-#[derive(Debug, Clone, Copy, FromMeta)]
-pub(crate) enum TestRunner {
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, FromMeta, Debug)]
+pub(crate) enum TestKind {
     Test,
     Theory,
     Fact,
 }
 
-impl Default for TestRunner {
+impl Default for TestKind {
     fn default() -> Self {
         Self::Test
     }
@@ -17,7 +17,7 @@ impl Default for TestRunner {
 pub(crate) struct TestEntryPointArgs {
     executor: Executor,
     #[darling(default)]
-    runner: TestRunner,
+    kind: TestKind,
 }
 
 impl Parse for TestEntryPointArgs {
@@ -49,29 +49,78 @@ impl ToTokens for TestEntryPoint {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let TestEntryPoint { item, args } = self;
         let mut sig = self.item.sig.clone();
+        let attrs = &item.attrs;
+        let kind = args.kind;
 
         if sig.asyncness.is_none() {
-            abort!(sig.fn_token.span(), "Only async functions are supported");
+            abort!(
+                sig.fn_token.span(), "Only async functions are supported";
+                help = "Consider writing the signature as:\n\nasync {}", sig.to_token_stream();
+            );
+        }
+        let mut case_attrs_count = 0;
+        for attr in attrs {
+            if attr.path.is_ident("test") {
+                abort!(attr.span(), "Second test attribute is supplied."; 
+                note = "test attribute is supplied by default");
+            }
+
+            if attr.path.is_ident("fact") {
+                abort!(
+                    attr.span(), "Second fact attribute is supplied.";
+                    help = Span::call_site() => "Consider adding the argument kind = \"fact\" to:"
+                );
+            }
+
+            if attr.path.is_ident("theory") {
+                abort!(
+                    attr.span(), "Second theory attribute is supplied.";
+                    help =
+                    Span::call_site() => "Consider adding the argument kind = \"theory\" to:"
+                );
+            }
+
+            if attr.path.is_ident("case") {
+                case_attrs_count += 1;
+            }
+        }
+
+        if kind == TestKind::Theory {
+            let types = sig.inputs.pairs().map(|input| match input {
+                Pair::Punctuated(FnArg::Typed(v), p) => Pair::new(v.ty.clone(), Some(p)),
+                Pair::End(FnArg::Typed(v)) => Pair::new(v.ty.clone(), None),
+                _ => abort!(sig.span(), "Theory test functions cannot a self argument."),
+            });
+
+            let ts = quote!(#(#types)*);
+            if sig.inputs.is_empty() {
+                abort!(sig.span(), "Theory test functions must have arguments.")
+            }
+            if case_attrs_count == 0 {
+                abort_call_site!(
+                    "No case attribute supplied to generate the tests.";
+                    help = sig.span() => "Add #[case({})] above:", ts
+                );
+            }
         }
 
         let vis = &item.vis;
-        let attrs = &item.attrs;
         let body = &item.block;
         sig.asyncness = None;
-        tokens.extend(match args.runner {
-            TestRunner::Theory => {
+        tokens.extend(match kind {
+            TestKind::Theory => {
                 quote! {
                     #[theory]
                     #(#attrs)*
                 }
             }
-            TestRunner::Fact => {
+            TestKind::Fact => {
                 quote! {
                     #[fact]
                     #(#attrs)*
                 }
             }
-            TestRunner::Test => {
+            TestKind::Test => {
                 quote! {
                     #[test]
                     #(#attrs)*
