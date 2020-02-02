@@ -1,10 +1,51 @@
 use super::*;
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, FromMeta, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub(crate) enum TestKind {
     Test,
     Theory,
     Fact,
+}
+
+impl TestKind {
+    fn from_iter<'a>(args: Box<dyn Iterator<Item = &NestedMeta> + 'a>) -> Option<Self> {
+        let mut result = None;
+        for arg in args {
+            if result.is_some() {
+                abort!(arg.span(), "Duplicate test kind argument");
+            }
+
+            if let NestedMeta::Meta(meta) = arg {
+                match meta {
+                    Meta::Path(path) => {
+                        if path.is_ident("test") {
+                            result = Some(Self::Test)
+                        }
+                        if path.is_ident("fact") {
+                            result = Some(Self::Fact)
+                        }
+
+                        if path.is_ident("theory") {
+                            result = Some(Self::Theory)
+                        }
+                    }
+                    Meta::NameValue(name_value) if name_value.path.is_ident("kind") => {
+                        match &name_value.lit {
+                            Lit::Str(expr) if expr.value() == "test" => result = Some(Self::Test),
+                            Lit::Str(expr) if expr.value() == "fact" => result = Some(Self::Fact),
+                            Lit::Str(expr) if expr.value() == "theory" => {
+                                result = Some(Self::Theory)
+                            }
+                            _ => abort!(arg.span(), "Unknown Literal"),
+                        }
+                    }
+                    _ => (),
+                };
+            }
+        }
+
+        result
+    }
 }
 
 impl Default for TestKind {
@@ -13,10 +54,9 @@ impl Default for TestKind {
     }
 }
 
-#[derive(Debug, FromMeta)]
+#[derive(Debug)]
 pub(crate) struct TestEntryPointArgs {
     executor: Executor,
-    #[darling(default)]
     kind: TestKind,
 }
 
@@ -24,18 +64,20 @@ impl Parse for TestEntryPointArgs {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let attrs_args: Punctuated<NestedMeta, Token![,]> =
             input.parse_terminated(NestedMeta::parse)?;
-        let attrs_args: AttributeArgs = attrs_args
-            .pairs()
-            .map(|item| {
-                match item {
-                    Pair::Punctuated(meta, _) => meta,
-                    Pair::End(meta) => meta,
-                }
-                .clone()
+        let maybe_executor: Option<Executor> = Executor::from_iter(box attrs_args.iter());
+        let maybe_kind: Option<TestKind> = TestKind::from_iter(box attrs_args.iter());
+
+        if let Some(executor) = maybe_executor {
+            Ok(Self {
+                executor,
+                kind: maybe_kind.unwrap_or_default(),
             })
-            .collect();
-        Ok(Self::from_list(&attrs_args)
-            .expect_or_abort("An error occured while parsing the input."))
+        } else {
+            Err(Error::new(
+                Span::call_site(),
+                "Missing executor configuration.",
+            ))
+        }
     }
 }
 
@@ -68,7 +110,7 @@ impl ToTokens for TestEntryPoint {
             if attr.path.is_ident("fact") {
                 abort!(
                     attr.span(), "Second fact attribute is supplied.";
-                    help = Span::call_site() => "Consider adding the argument kind = \"fact\" to:"
+                    help = Span::call_site() => "Consider adding the argument kind = fact to:"
                 );
             }
 
@@ -76,7 +118,7 @@ impl ToTokens for TestEntryPoint {
                 abort!(
                     attr.span(), "Second theory attribute is supplied.";
                     help =
-                    Span::call_site() => "Consider adding the argument kind = \"theory\" to:"
+                    Span::call_site() => "Consider adding the argument kind = theory to:"
                 );
             }
 
@@ -87,8 +129,8 @@ impl ToTokens for TestEntryPoint {
 
         if kind == TestKind::Theory {
             let types = sig.inputs.pairs().map(|input| match input {
-                Pair::Punctuated(FnArg::Typed(v), p) => Pair::new(v.ty.clone(), Some(p)),
-                Pair::End(FnArg::Typed(v)) => Pair::new(v.ty.clone(), None),
+                Pair::Punctuated(FnArg::Typed(expr), p) => Pair::new(expr.ty.clone(), Some(p)),
+                Pair::End(FnArg::Typed(expr)) => Pair::new(expr.ty.clone(), None),
                 _ => abort!(sig.span(), "Theory test functions cannot a self argument."),
             });
 
@@ -128,23 +170,7 @@ impl ToTokens for TestEntryPoint {
             }
         });
 
-        let block_on = match args.executor {
-            Executor::AsyncStd => {
-                quote! {
-                    async_std::task::block_on
-                }
-            }
-            Executor::Tokio => {
-                quote! {
-                    tokio::runtime::Builder::new()
-                        .basic_scheduler()
-                        .enable_all()
-                        .build()
-                        .unwrap()
-                        .block_on
-                }
-            }
-        };
+        let block_on = args.executor;
 
         tokens.extend(quote! {
             #vis #sig {

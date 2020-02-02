@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, FromMeta)]
+#[derive(Debug)]
 pub(crate) struct MainEntryPointArgs {
     executor: Executor,
 }
@@ -9,18 +9,16 @@ impl Parse for MainEntryPointArgs {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let attrs_args: Punctuated<NestedMeta, Token![,]> =
             input.parse_terminated(NestedMeta::parse)?;
-        let attrs_args: AttributeArgs = attrs_args
-            .pairs()
-            .map(|item| {
-                match item {
-                    Pair::Punctuated(meta, _) => meta,
-                    Pair::End(meta) => meta,
-                }
-                .clone()
-            })
-            .collect();
-        Ok(Self::from_list(&attrs_args)
-            .expect_or_abort("An error occured while parsing the input."))
+        let maybe_executor: Option<Executor> = Executor::from_iter(box attrs_args.iter());
+
+        if let Some(executor) = maybe_executor {
+            Ok(Self { executor })
+        } else {
+            Err(Error::new(
+                Span::call_site(),
+                "Missing executor configuration.",
+            ))
+        }
     }
 }
 
@@ -45,23 +43,7 @@ impl ToTokens for MainEntryPoint {
         let vis = &item.vis;
         let attrs = &item.attrs;
         let body = &item.block;
-        let block_on = match args.executor {
-            Executor::AsyncStd => {
-                quote! {
-                    async_std::task::block_on
-                }
-            }
-            Executor::Tokio => {
-                quote! {
-                    tokio::runtime::Builder::new()
-                        .basic_scheduler()
-                        .enable_all()
-                        .build()
-                        .unwrap()
-                        .block_on
-                }
-            }
-        };
+        let block_on = args.executor;
         sig.asyncness = None;
         tokens.extend(quote! {
             #(#attrs)*

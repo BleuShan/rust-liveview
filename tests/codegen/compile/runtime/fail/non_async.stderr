@@ -1,9 +1,0 @@
-error: Only async functions are supported
- --> $DIR/non_async.rs:6:1
-  |
-6 | fn main() {}
-  | ^^
-  |
-  = help: Consider writing the signature as:
-          
-          async fn main ()

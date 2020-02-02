@@ -6,11 +6,7 @@ edition = "2018"
 
 
 [dependencies]
-async-std = { version = "1.4.0", features = ["unstable"] }
-async-tungstenite = "0.3.1"
 serde = { version = "1.0.104", features = ['derive'] }
 rust-liveview-common = { path = "../rust-liveview-common" }
-async-tls = "0.6.0"
-rustls = "0.16.0"
 config = {version ="0.10.1", default-features = false, features = ["toml", "json"]}
 tower-service = "0.3.0"

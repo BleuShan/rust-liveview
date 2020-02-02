@@ -1,6 +1,6 @@
 use super::*;
 
-use ::async_std::{
+use async_std::{
     prelude::*,
     sync::channel,
     task,

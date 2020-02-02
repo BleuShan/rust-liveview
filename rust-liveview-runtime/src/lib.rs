@@ -19,6 +19,12 @@
     try_trait
 )]
 
+#[macro_use]
+mod macros;
+
+#[doc(hidden)]
+pub mod private;
+
 use rust_liveview_common::cfg_not_test;
 
 cfg_not_test! {

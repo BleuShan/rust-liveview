@@ -1,7 +1,0 @@
-error: Second theory attribute is supplied.
-  --> $DIR/missing_case_theory_attr copy.rs:10:1
-   |
-10 | #[theory]
-   | ^^^^^^^^^
-   |
-   = help: Use: #[runtime::test(executor = "async_std", kind = "theory")]

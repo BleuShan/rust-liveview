@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use async_std::{
+use std::{
     future::Future,
     task::{
         Context,

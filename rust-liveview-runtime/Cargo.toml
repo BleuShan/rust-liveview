@@ -4,7 +4,52 @@ version = "0.1.0"
 authors = ["Philippe Lafontaine <lafontaine.philippe@gmail.com>"]
 edition = "2018"
 
-
+[features]
+default = []
+async-std-runtime = [
+    "async-std",
+    "async-tungstenite/async-std-runtime"
+]
+tokio-runtime = [
+    "tokio",
+    "async-tungstenite/tokio-runtime"
+]
 [dependencies]
-rust-liveview-codegen = { path = "../rust-liveview-codegen", features = ["runtime"] }
 rust-liveview-common = { path = "../rust-liveview-common" }
+async-tls = "0.6.0"
+rustls = "0.16.0"
+
+[dependencies.rust-liveview-codegen]
+path = "../rust-liveview-codegen"
+features = ["runtime"]
+
+[dependencies.async-std]
+version = "1.4.0"
+features = ["unstable"]
+optional = true
+
+[dependencies.async-tungstenite]
+version = "0.4.0"
+features = ["async-tls"]
+optional = true
+
+[dependencies.tokio]
+version = "0.2.11"
+features = [
+    "blocking",
+    "dns",
+    "fs",
+    "io-driver",
+    "io-util",
+    "io-std",
+    "net",
+    "process",
+    "rt-core",
+    "rt-util",
+    "rt-threaded",
+    "signal",
+    "stream",
+    "sync",
+    "time",
+]
+optional = true 

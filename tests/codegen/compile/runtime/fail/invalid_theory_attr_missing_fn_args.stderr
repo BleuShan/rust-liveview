@@ -1,5 +1,0 @@
-error: Theory test functions must have arguments.
-  --> $DIR/invalid_theory_attr_missing_fn_args.rs:10:1
-   |
-10 | async fn runtime_attribute_test_should_add_the_test_attribute() {}
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

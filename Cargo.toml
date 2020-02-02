@@ -21,6 +21,19 @@ rust-liveview-rpc = { path = "./rust-liveview-rpc" }
 rust-liveview-view = { path = "./rust-liveview-view" }
 
 [dev-dependencies]
-async-std = { version = "1.4.0", features = ["unstable"] }
 fluid = "0.4"
 trybuild = "1.0.21"
+
+[dev-dependencies.rust-liveview-runtime]
+path = "./rust-liveview-runtime"
+features = [
+    "async-std-runtime",
+    "tokio-runtime",
+]
+
+[dev-dependencies.async-std]
+version = "1.4.0"
+
+[dev-dependencies.tokio]
+version = "0.2.11"
+
