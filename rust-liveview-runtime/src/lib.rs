@@ -19,13 +19,13 @@
     try_trait
 )]
 
+use rust_liveview_common::cfg_not_test;
+
 #[macro_use]
 mod macros;
 
 #[doc(hidden)]
 pub mod private;
-
-use rust_liveview_common::cfg_not_test;
 
 cfg_not_test! {
     pub use rust_liveview_codegen::runtime_entrypoint_main as main;

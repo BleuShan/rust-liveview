@@ -9,7 +9,6 @@ edition = "2018"
 members = [
     "rust-liveview-codegen",
     "rust-liveview-common",
-    "rust-liveview-rpc",
     "rust-liveview-runtime",
     "rust-liveview-view"
 ]
@@ -17,7 +16,6 @@ members = [
 [dependencies]
 rust-liveview-common = { path = "./rust-liveview-common" }
 rust-liveview-runtime = { path = "./rust-liveview-runtime" }
-rust-liveview-rpc = { path = "./rust-liveview-rpc" }
 rust-liveview-view = { path = "./rust-liveview-view" }
 
 [dev-dependencies]
