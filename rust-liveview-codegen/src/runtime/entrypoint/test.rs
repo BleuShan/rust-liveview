@@ -8,35 +8,59 @@ pub(crate) enum TestKind {
 }
 
 impl TestKind {
+    fn parse_path(path: &Path) -> Option<Self> {
+        if path.is_ident("test") {
+            Some(Self::Test)
+        } else if path.is_ident("fact") {
+            Some(Self::Fact)
+        } else if path.is_ident("theory") {
+            Some(Self::Theory)
+        } else {
+            None
+        }
+    }
+
+    fn parse_lit_str(expr: &LitStr) -> Option<Self> {
+        if expr.value() == "test" {
+            Some(Self::Test)
+        } else if expr.value() == "fact" {
+            Some(Self::Fact)
+        } else if expr.value() == "theory" {
+            Some(Self::Theory)
+        } else {
+            None
+        }
+    }
+
+    fn is_valid_path(path: &Path) -> bool {
+        path.is_ident("theory") || path.is_ident("fact") || path.is_ident("test")
+    }
+
     fn from_iter<'a>(args: Box<dyn Iterator<Item = &NestedMeta> + 'a>) -> Option<Self> {
         let mut result = None;
         for arg in args {
-            if result.is_some() {
-                abort!(arg.span(), "Duplicate test kind argument");
-            }
-
             if let NestedMeta::Meta(meta) = arg {
                 match meta {
                     Meta::Path(path) => {
-                        if path.is_ident("test") {
-                            result = Some(Self::Test)
-                        }
-                        if path.is_ident("fact") {
-                            result = Some(Self::Fact)
-                        }
-
-                        if path.is_ident("theory") {
-                            result = Some(Self::Theory)
+                        if result.is_none() {
+                            result = Self::parse_path(path)
+                        } else if Self::is_valid_path(path) {
+                            abort!(arg.span(), "Duplicate kind argument");
                         }
                     }
                     Meta::NameValue(name_value) if name_value.path.is_ident("kind") => {
                         match &name_value.lit {
-                            Lit::Str(expr) if expr.value() == "test" => result = Some(Self::Test),
-                            Lit::Str(expr) if expr.value() == "fact" => result = Some(Self::Fact),
-                            Lit::Str(expr) if expr.value() == "theory" => {
-                                result = Some(Self::Theory)
+                            Lit::Str(expr) => {
+                                if result.is_some() {
+                                    abort!(arg.span(), "Duplicate kind argument");
+                                }
+
+                                result = Self::parse_lit_str(expr)
                             }
-                            _ => abort!(arg.span(), "Unknown Literal"),
+                            lit => abort!(
+                                lit.span(), "Unknown Literal";
+                                help = "kind can have be test, fact or theory"
+                            ),
                         }
                     }
                     _ => (),

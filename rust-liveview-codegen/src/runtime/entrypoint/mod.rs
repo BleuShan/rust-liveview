@@ -24,8 +24,11 @@ use syn::{
     FnArg,
     ItemFn,
     Lit,
+    LitStr,
     Meta,
+    MetaNameValue,
     NestedMeta,
+    Path,
     Token,
 };
 
@@ -59,88 +62,139 @@ pub(crate) enum Executor {
     AsyncStd,
     Tokio,
     TokioThreaded {
-        core_thread: Option<usize>,
-        max_thread: Option<usize>,
+        core_threads: Option<usize>,
+        max_threads: Option<usize>,
     },
 }
 
 impl Executor {
+    fn parse_path(
+        path: &Path,
+        core_threads: Option<usize>,
+        max_threads: Option<usize>,
+    ) -> Option<Self> {
+        if path.is_ident("AsyncStd") || path.is_ident("async_std") {
+            Some(Executor::AsyncStd)
+        } else if path.is_ident("tokio") || path.is_ident("Tokio") {
+            Some(Executor::Tokio)
+        } else if path.is_ident("tokio_threaded") || path.is_ident("TokioThreaded") {
+            Some(Executor::TokioThreaded {
+                core_threads,
+                max_threads,
+            })
+        } else {
+            None
+        }
+    }
+
+    fn parse_lit_str(
+        expr: &LitStr,
+        core_threads: Option<usize>,
+        max_threads: Option<usize>,
+    ) -> Option<Self> {
+        if expr.value() == "async_std" || expr.value() == "AsyncStd" {
+            Some(Executor::AsyncStd)
+        } else if expr.value() == "tokio" || expr.value() == "Tokio" {
+            Some(Executor::Tokio)
+        } else if expr.value() == "tokio_threaded" || expr.value() == "TokioThreaded" {
+            Some(Executor::TokioThreaded {
+                core_threads,
+                max_threads,
+            })
+        } else {
+            None
+        }
+    }
+
+    fn is_valid_path(path: &syn::Path) -> bool {
+        path.is_ident("tokio_threadsed")
+            || path.is_ident("TokioThreaded")
+            || path.is_ident("tokio")
+            || path.is_ident("Tokio")
+            || path.is_ident("AsyncStd")
+            || path.is_ident("async_std")
+    }
+
     fn from_iter<'a>(args: Box<dyn Iterator<Item = &NestedMeta> + 'a>) -> Option<Self> {
-        let mut core_thread = None;
-        let mut max_thread = None;
+        let mut core_threads = None;
+        let mut max_threads = None;
         let mut rt = None;
         for arg in args {
             if let NestedMeta::Meta(meta) = arg {
                 match meta {
                     Meta::Path(path) => {
+                        if rt.is_none() {
+                            rt = Self::parse_path(path, core_threads, max_threads)
+                        } else if Self::is_valid_path(path) {
+                            abort!(arg.span(), "Duplicate executor argument.");
+                        }
+                    }
+                    Meta::NameValue(MetaNameValue { path, lit, .. })
+                        if path.is_ident("executor") =>
+                    {
                         if rt.is_some() {
                             abort!(arg.span(), "Duplicate executor argument.");
                         }
-
-                        if path.is_ident("AsyncStd") {
-                            rt = Some(Self::AsyncStd)
-                        }
-
-                        if path.is_ident("Tokio") {
-                            rt = Some(Self::Tokio)
-                        }
-
-                        if path.is_ident("TokioThreaded") {
-                            rt = Some(Self::TokioThreaded {
-                                core_thread: None,
-                                max_thread: None,
-                            })
-                        }
-                        if path.is_ident("async_std") {
-                            rt = Some(Self::AsyncStd)
-                        }
-                        if path.is_ident("tokio") {
-                            rt = Some(Self::Tokio)
-                        }
-
-                        if path.is_ident("tokio_threaded") {
-                            rt = Some(Self::TokioThreaded {
-                                core_thread,
-                                max_thread,
-                            })
+                        match &lit {
+                            Lit::Str(expr) => {
+                                rt = Self::parse_lit_str(expr, core_threads, max_threads)
+                            }
+                            lit => abort!(
+                                lit.span(), "Unknown literal.";
+                                help = "executor can have async_std or tokio, tokio_threadsed"
+                            ),
                         }
                     }
-                    Meta::NameValue(name_value) if name_value.path.is_ident("executor") => {
-                        if rt.is_some() {
-                            abort!(arg.span(), "Duplicate executor argument.");
+                    Meta::NameValue(MetaNameValue { path, lit, .. })
+                        if path.is_ident("core_threads") || path.is_ident("max_threads") =>
+                    {
+                        if core_threads.is_some() && path.is_ident("core_threads") {
+                            abort!(arg.span(), "Duplicate core_threads argument.");
                         }
-                        match &name_value.lit {
-                            Lit::Str(v) if v.value() == "async_std" || v.value() == "AsyncStd" => {
-                                rt = Some(Self::AsyncStd)
-                            }
-                            Lit::Str(v) if v.value() == "tokio" || v.value() == "Tokio" => {
-                                rt = Some(Self::Tokio)
-                            }
-                            Lit::Str(v)
-                                if v.value() == "tokio_threaded"
-                                    || v.value() == "TokioThreaded" =>
-                            {
-                                rt = Some(Self::TokioThreaded {
-                                    core_thread,
-                                    max_thread,
-                                })
-                            }
-                            _ => abort!(arg.span(), "Unknown literal."),
-                        }
-                    }
-                    Meta::NameValue(name_value) if name_value.path.is_ident("core_thread") => {
-                        if let Lit::Int(expr) = &name_value.lit {
-                            core_thread = Some(expr.base10_parse().expect("an"))
-                        } else {
-                            abort!(arg.span(), "Unknown literal.")
-                        }
-                    }
 
-                    Meta::NameValue(name_value) if name_value.path.is_ident("max_thread") => {
-                        if let Lit::Int(expr) = &name_value.lit {
-                            max_thread = Some(expr.base10_parse().expect("an"))
-                        } else {
-                            abort!(arg.span(), "Unknown literal.")
+                        if max_threads.is_some() && path.is_ident("max_threads") {
+                            abort!(arg.span(), "Duplicate max_threads argument.");
+                        }
+
+                        match rt {
+                            Some(Executor::AsyncStd) => {
+                                emit_warning!(arg, "argument is unsupported and will be ignored.")
+                            }
+                            Some(Executor::Tokio) => {
+                                emit_warning!(arg, "argument is unsupported and will be ignored.")
+                            }
+                            _ => (),
+                        };
+
+                        match &lit {
+                            Lit::Int(expr) => match expr.base10_parse() {
+                                Ok(value) => {
+                                    if path.is_ident("core_threads") {
+                                        if let Some(max) = max_threads {
+                                            if value > max {
+                                                abort!(
+                                                    expr,
+                                                    "core_threads number cannot be above max limit"
+                                                )
+                                            }
+                                        }
+                                        core_threads = Some(value)
+                                    } else {
+                                        if let Some(count) = core_threads {
+                                            if value < count {
+                                                abort!(
+                                                    expr,
+                                                    "max_threads number cannot be below \
+                                                     core_threads number"
+                                                )
+                                            }
+                                        }
+                                        max_threads = Some(value)
+                                    }
+                                }
+                                Err(e) => abort!(e),
+                            },
+                            lit => abort!(lit.span(), "core_threads must be an int."),
                         }
                     }
                     _ => (),
@@ -148,7 +202,30 @@ impl Executor {
             }
         }
 
-        rt
+        match rt {
+            Some(Self::TokioThreaded {
+                core_threads: None,
+                max_threads: None,
+            }) if core_threads.is_some() && max_threads.is_some() => Some(Self::TokioThreaded {
+                core_threads,
+                max_threads,
+            }),
+            Some(Self::TokioThreaded {
+                core_threads: None,
+                max_threads,
+            }) if core_threads.is_some() => Some(Self::TokioThreaded {
+                core_threads,
+                max_threads,
+            }),
+            Some(Self::TokioThreaded {
+                core_threads,
+                max_threads: None,
+            }) if max_threads.is_some() => Some(Self::TokioThreaded {
+                core_threads,
+                max_threads,
+            }),
+            value => value,
+        }
     }
 }
 
@@ -165,28 +242,30 @@ impl ToTokens for Executor {
                     runtime::private::tokio::runtime::Builder::new()
                         .basic_scheduler()
                         .enable_all()
+                        .thread_name("rust-liveview-runtime-worker")
                         .build()
                         .expect("Failed to create runtime.")
                         .block_on
                 }
             }
             Executor::TokioThreaded {
-                core_thread,
-                max_thread,
+                core_threads,
+                max_threads,
             } => {
                 let mut rt = quote! {
                     runtime::private::tokio::runtime::Builder::new()
                         .threaded_scheduler()
                         .enable_all()
+                        .thread_name("rust-liveview-runtime-worker")
                 };
 
-                if let Some(v) = core_thread {
+                if let Some(v) = core_threads {
                     rt = quote! {
                         #rt
                         .core_threads(#v)
                     };
                 }
-                if let Some(v) = max_thread {
+                if let Some(v) = max_threads {
                     rt = quote! {
                         #rt
                         .max_threads(#v)
