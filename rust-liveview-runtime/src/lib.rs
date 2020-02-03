@@ -27,8 +27,14 @@ mod macros;
 #[doc(hidden)]
 pub mod private;
 
+mod application;
+pub mod tls;
+
 cfg_not_test! {
     pub use rust_liveview_codegen::runtime_entrypoint_main as main;
 }
 
 pub use rust_liveview_codegen::runtime_entrypoint_test as test;
+
+pub use application::Application;
+pub use tls::TlsBuilder;

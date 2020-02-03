@@ -5,7 +5,7 @@ use async_std::{
     sync::channel,
     task,
 };
-use rust_liveview::runtime;
+
 use std::time::Duration;
 
 #[runtime::test(executor = "async_std")]
