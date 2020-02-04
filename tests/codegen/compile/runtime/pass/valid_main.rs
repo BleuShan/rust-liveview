@@ -1,13 +1,13 @@
-use async_std::{
+use rust_liveview::runtime::{
+    self,
     io,
     prelude::*,
     sync::channel,
     task,
 };
-use rust_liveview::runtime;
 use std::time::Duration;
 
-#[runtime::main(executor = "async_std")]
+#[runtime::main(async_std)]
 async fn main() -> io::Result<()> {
     let (tx, mut rx) = channel(1);
     let mut buffer: Vec<u8> = Default::default();

@@ -1,11 +1,11 @@
 error: Second theory attribute is supplied.
-  --> $DIR/invalid_theory_attr.rs:10:1
-   |
-10 | #[theory]
-   | ^^^^^^^^^
-   |
-help: Consider adding the argument kind = theory to:
-  --> $DIR/invalid_theory_attr.rs:9:1
-   |
-9  | #[runtime::test(executor = "async_std")]
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ --> $DIR/invalid_theory_attr.rs:7:1
+  |
+7 | #[theory]
+  | ^^^^^^^^^
+  |
+help: Consider adding theory to the following arguments:
+ --> $DIR/invalid_theory_attr.rs:6:1
+  |
+6 | #[runtime::test(async_std)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^

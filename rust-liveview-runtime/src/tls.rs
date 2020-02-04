@@ -36,7 +36,23 @@ impl TlsBuilder {
         }
     }
 
-    pub fn build_acceptor(&self) -> io::Result<TlsAcceptor> {
+    pub fn cert_path<P>(mut self, path: P) -> Self
+    where
+        P: Into<PathBuf>,
+    {
+        self.cert_path = Some(path.into());
+        self
+    }
+
+    pub fn key_path<P>(mut self, path: P) -> Self
+    where
+        P: Into<PathBuf>,
+    {
+        self.key_path = Some(path.into());
+        self
+    }
+
+    pub fn acceptor(&self) -> io::Result<TlsAcceptor> {
         if self.cert_path.is_none() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
@@ -51,32 +67,50 @@ impl TlsBuilder {
             ));
         }
 
-        let config = ServerConfig::new(NoClientAuth::new());
-        let _key = self
+        let mut config = ServerConfig::new(NoClientAuth::new());
+        let key = self
             .key_path
             .as_ref()
             .into_result()
             .map_err(|_| io::Error::from(io::ErrorKind::NotFound))
-            .map(|path| {
+            .and_then(|path| {
                 let mut file = BufReader::new(fs::File::open(path)?);
                 rsa_private_keys(&mut file)
-                    .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid key"))
+                    .map_err(|_| {
+                        io::Error::new(
+                            io::ErrorKind::InvalidInput,
+                            "File contains invalid RSA private key",
+                        )
+                    })
+                    .map(|keys| keys[0].clone())
             })?;
-        let _certs = self
+
+        let certs = self
             .cert_path
             .as_ref()
             .into_result()
             .map_err(|_| io::Error::from(io::ErrorKind::NotFound))
-            .map(|path| {
+            .and_then(|path| {
                 let mut file = BufReader::new(fs::File::open(path)?);
-                certs(&mut file)
-                    .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid key"))
+                certs(&mut file).map_err(|_| {
+                    io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "File contains invalid invalid certificate",
+                    )
+                })
             })?;
+
+        config.set_single_cert(certs, key).map_err(|_| {
+            io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Invalid Certificate/Private Key",
+            )
+        })?;
 
         Ok(TlsAcceptor::from(Arc::new(config)))
     }
 
-    pub fn build_connector(&self) -> io::Result<TlsConnector> {
+    pub fn connector(&self) -> io::Result<TlsConnector> {
         let mut config = ClientConfig::new();
         config
             .root_store

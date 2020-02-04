@@ -1,12 +1,22 @@
 use super::*;
 
-use runtime::Application;
+use runtime::{
+    Application,
+    TlsBuilder,
+};
 
-async fn build_server() -> Application {
-    Application::new().build().await
+fn configure() -> Application {
+    Application::new()
+        .tls(
+            TlsBuilder::new()
+                .cert_path("certs/locahost.pem")
+                .key_path("certs/locahost-key.pem"),
+        )
+        .build()
+        .expect("Failed to create server")
 }
 
-#[runtime::test(tokio_threaded, fact)]
+#[runtime::test(async_std, fact)]
 async fn a_server_should_be_able_to_handle_requests() {
-    let _server = build_server();
+    let _server = configure();
 }

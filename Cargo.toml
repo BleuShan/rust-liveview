@@ -26,12 +26,4 @@ trybuild = "1.0.21"
 path = "./rust-liveview-runtime"
 features = [
     "async-std-runtime",
-    "tokio-runtime",
 ]
-
-[dev-dependencies.async-std]
-version = "1.4.0"
-
-[dev-dependencies.tokio]
-version = "0.2.11"
-

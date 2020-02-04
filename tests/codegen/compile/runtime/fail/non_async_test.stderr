@@ -1,7 +1,7 @@
 error: Only async functions are supported
- --> $DIR/non_async_test.rs:8:1
+ --> $DIR/non_async_test.rs:6:1
   |
-8 | fn runtime_attribute_test_should_add_the_test_attribute() {}
+6 | fn runtime_attribute_test_should_add_the_test_attribute() {}
   | ^^
   |
   = help: Consider writing the signature as:

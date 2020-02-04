@@ -1,11 +1,11 @@
 error: Second fact attribute is supplied.
-  --> $DIR/invalid_fact_attr.rs:10:1
+  --> $DIR/invalid_fact_attr.rs:12:1
    |
-10 | #[fact]
+12 | #[fact]
    | ^^^^^^^
    |
-help: Consider adding the argument kind = fact to:
-  --> $DIR/invalid_fact_attr.rs:9:1
+help: Consider adding fact to:
+  --> $DIR/invalid_fact_attr.rs:11:1
    |
-9  | #[runtime::test(executor = "async_std")]
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 | #[runtime::test(async_std)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^

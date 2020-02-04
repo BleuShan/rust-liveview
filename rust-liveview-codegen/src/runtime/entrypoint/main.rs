@@ -7,18 +7,9 @@ pub(crate) struct MainEntryPointArgs {
 
 impl Parse for MainEntryPointArgs {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
-        let attrs_args: Punctuated<NestedMeta, Token![,]> =
-            input.parse_terminated(NestedMeta::parse)?;
-        let maybe_executor: Option<Executor> = Executor::from_iter(box attrs_args.iter());
-
-        if let Some(executor) = maybe_executor {
-            Ok(Self { executor })
-        } else {
-            Err(Error::new(
-                Span::call_site(),
-                "Missing executor configuration.",
-            ))
-        }
+        Ok(Self {
+            executor: input.parse()?,
+        })
     }
 }
 

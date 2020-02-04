@@ -7,10 +7,10 @@ macro_rules! cfg_async_std_runtime {
     }
 }
 
-macro_rules! cfg_tokio_runtime {
+macro_rules! cfg_tls {
    ($($item:item)*) => {
         $(
-            #[cfg(feature = "tokio-runtime")]
+            #[cfg(feature = "tls")]
             $item
         )*
     }

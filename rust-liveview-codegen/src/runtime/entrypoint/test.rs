@@ -7,68 +7,24 @@ pub(crate) enum TestKind {
     Fact,
 }
 
-impl TestKind {
-    fn parse_path(path: &Path) -> Option<Self> {
-        if path.is_ident("test") {
-            Some(Self::Test)
-        } else if path.is_ident("fact") {
-            Some(Self::Fact)
-        } else if path.is_ident("theory") {
-            Some(Self::Theory)
-        } else {
-            None
-        }
-    }
-
-    fn parse_lit_str(expr: &LitStr) -> Option<Self> {
-        if expr.value() == "test" {
-            Some(Self::Test)
-        } else if expr.value() == "fact" {
-            Some(Self::Fact)
-        } else if expr.value() == "theory" {
-            Some(Self::Theory)
-        } else {
-            None
-        }
-    }
-
-    fn is_valid_path(path: &Path) -> bool {
-        path.is_ident("theory") || path.is_ident("fact") || path.is_ident("test")
-    }
-
-    fn from_iter<'a>(args: Box<dyn Iterator<Item = &NestedMeta> + 'a>) -> Option<Self> {
-        let mut result = None;
-        for arg in args {
-            if let NestedMeta::Meta(meta) = arg {
-                match meta {
-                    Meta::Path(path) => {
-                        if result.is_none() {
-                            result = Self::parse_path(path)
-                        } else if Self::is_valid_path(path) {
-                            abort!(arg.span(), "Duplicate kind argument");
-                        }
-                    }
-                    Meta::NameValue(name_value) if name_value.path.is_ident("kind") => {
-                        match &name_value.lit {
-                            Lit::Str(expr) => {
-                                if result.is_some() {
-                                    abort!(arg.span(), "Duplicate kind argument");
-                                }
-
-                                result = Self::parse_lit_str(expr)
-                            }
-                            lit => abort!(
-                                lit.span(), "Unknown Literal";
-                                help = "kind can have be test, fact or theory"
-                            ),
-                        }
-                    }
-                    _ => (),
-                };
+impl Parse for TestKind {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let token = Token![,];
+        if input.peek(token) {
+            let _ = input.parse::<Token![,]>()?;
+            let path: Path = input.parse()?;
+            if path.is_ident("test") {
+                Ok(Self::Test)
+            } else if path.is_ident("fact") {
+                Ok(Self::Fact)
+            } else if path.is_ident("theory") {
+                Ok(Self::Theory)
+            } else {
+                Err(Error::new_spanned(path, "Unknown TestKind"))
             }
+        } else {
+            Ok(Self::Test)
         }
-
-        result
     }
 }
 
@@ -86,22 +42,10 @@ pub(crate) struct TestEntryPointArgs {
 
 impl Parse for TestEntryPointArgs {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
-        let attrs_args: Punctuated<NestedMeta, Token![,]> =
-            input.parse_terminated(NestedMeta::parse)?;
-        let maybe_executor: Option<Executor> = Executor::from_iter(box attrs_args.iter());
-        let maybe_kind: Option<TestKind> = TestKind::from_iter(box attrs_args.iter());
-
-        if let Some(executor) = maybe_executor {
-            Ok(Self {
-                executor,
-                kind: maybe_kind.unwrap_or_default(),
-            })
-        } else {
-            Err(Error::new(
-                Span::call_site(),
-                "Missing executor configuration.",
-            ))
-        }
+        Ok(Self {
+            executor: input.parse()?,
+            kind: input.parse()?,
+        })
     }
 }
 
@@ -134,7 +78,7 @@ impl ToTokens for TestEntryPoint {
             if attr.path.is_ident("fact") {
                 abort!(
                     attr.span(), "Second fact attribute is supplied.";
-                    help = Span::call_site() => "Consider adding the argument kind = fact to:"
+                    help = Span::call_site() => "Consider adding fact to:"
                 );
             }
 
@@ -142,7 +86,7 @@ impl ToTokens for TestEntryPoint {
                 abort!(
                     attr.span(), "Second theory attribute is supplied.";
                     help =
-                    Span::call_site() => "Consider adding the argument kind = theory to:"
+                    Span::call_site() => "Consider adding theory to the following arguments:"
                 );
             }
 
